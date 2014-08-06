@@ -112,7 +112,7 @@ class Database extends Module
 
         @connection.flushdb (err, response) ->
             logger.error "Could not drop current db #{@current_db()} due to error", error: err.toString()
-            callback err
+            callback err if callback
 
     @drop_all: (callback) =>
         assert @connected, "Connection to the redis store not established"
@@ -120,6 +120,6 @@ class Database extends Module
 
         @connection.flushall (err, response) ->
             logger.error "Could not drop all database due to error", error: err.toString()
-            callback err
+            callback err if callback
 
 module.exports = Database
