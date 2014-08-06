@@ -1,0 +1,31 @@
+{
+    "name":         "social_coffee",
+    "version":      "0.1.0",
+    "description":  "Social graph thrift's service",
+    "keywords": [
+        "soa",
+        "social",
+        "thrift",
+        "coffeescript"
+    ],
+    "homepage": "https://github.com/iaintshine/social_coffee",
+    "main":     "lib/index.js",
+    "dependencies": {
+        "winston": "0.7.x",
+        "js-yaml": "3.0.x"
+    },
+    "devDependencies": {
+        "coffee-script": ">= 1.7.1",
+        "mocha":  "1.20.x",
+        "should": "4.0.x"
+    },
+    "scripts": {
+        "test": "NODE_ENV=test node_modules/.bin/mocha"
+    },
+    "author": "iaintshine <bodziomista@gmail.com> (http://twitter.com/iaintshine)",
+    "repository": {
+        "type": "git",
+        "url":  "https://github.com/iaintshine/social_coffee"
+    },
+    "readmeFile": "README.md"
+}
