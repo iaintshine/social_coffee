@@ -15,7 +15,7 @@ class Logger
         fs.mkdirSync(KnownPath.log) unless fs.existsSync(KnownPath.log)
 
     @say_hi: ->
-        @info "You are running in #{Environment.env} environment"
+        logger.info "You are running in #{Environment.env} environment"
 
     @initialize: ->
         @prepare_fs()
