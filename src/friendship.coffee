@@ -29,6 +29,10 @@ class Friendship
             callback error if callback
             return
 
+        if usera == userb 
+            callback new Error "function arguments must not be equal"
+            return
+
         @connect().multi()
             .sadd(@key(usera), userb)
             .sadd(@key(userb), usera)
@@ -54,6 +58,10 @@ class Friendship
             callback error if callback
             return
 
+        if usera == userb 
+            callback new Error "function arguments must not be equal"
+            return
+
         @connect().multi()
             .srem(@key(usera), userb)
             .srem(@key(userb), usera)
@@ -70,7 +78,7 @@ class Friendship
     # -- Finders --
 
     @select: (user, callback) -> 
-        error = @sanitize_argument usera
+        error = @sanitize_argument user
         if error
             callback error if callback
             return 

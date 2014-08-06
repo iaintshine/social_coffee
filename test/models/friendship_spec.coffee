@@ -43,7 +43,7 @@ describe 'Friendship', ->
 
             it 'shouldnt return any error', (done) ->
                 Friendship.create user_a, user_b, (error, created) ->
-                    error.should.not.be.ok
+                    (error is null).should.be.true
                     done()
 
             it 'should add second user to users friends circle', (done) ->
@@ -74,7 +74,7 @@ describe 'Friendship', ->
 
             it 'shouldnt return any error', (done) ->
                 Friendship.create user_a, user_b, (error, created) ->
-                    error.should.not.be.ok
+                    (error is null).should.be.true
                     done()
 
             it 'should set created (second argument) to false', (done) ->
@@ -121,7 +121,7 @@ describe 'Friendship', ->
 
             it 'shouldnt return any error', (done) ->
                 Friendship.remove user_a, user_b, (error, removed) ->
-                    error.should.not.be.ok
+                    (error is null).should.be.true
                     done()
 
             it 'should remove second user from users friends circle', (done) ->
@@ -149,7 +149,7 @@ describe 'Friendship', ->
 
             it 'shouldnt return any error', (done) ->
                 Friendship.remove user_a, user_b, (error, removed) ->
-                    error.should.not.be.ok
+                    (error is null).should.be.true
                     done()
 
             it 'should set removed (second argument) to false', (done) ->
@@ -175,7 +175,7 @@ describe 'Friendship', ->
                     done()
 
             it 'returns RangeErorr if argument has non positive value', (done) ->
-                Friendship.remove -1, (error, friends) ->
+                Friendship.select -1, (error, friends) ->
                     error.should.be.ok
                     error.should.be.instanceof RangeError
                     error.message.should.equal 'function argumenst is not a positive number'
@@ -184,7 +184,7 @@ describe 'Friendship', ->
         describe 'user without friend relationships', ->
             it 'shouldnt return any error', (done) ->
                 Friendship.select user_a, (error, friends) ->
-                    error.should.not.be.ok
+                    (error is null).should.be.true
                     done()
 
             it 'should return empty array', (done) ->
@@ -204,7 +204,7 @@ describe 'Friendship', ->
 
             it 'shouldnt return any error', (done) ->
                 Friendship.select user_a, (error, friends) ->
-                    error.should.not.be.ok
+                    (error is null).should.be.true
                     done()
 
             it 'should return an array with friend ids', (done) ->
@@ -212,3 +212,4 @@ describe 'Friendship', ->
                     friends.should.be.instanceof Array
                     friends.should.not.be.empty
                     friends.should.eql [user_b]
+                    done()
