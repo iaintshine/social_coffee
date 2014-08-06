@@ -42,10 +42,14 @@ class Database
         @connection = redis.createClient config.port, config.host, options
         @config     = config
 
+        @connection.debug_mode = Environment.debug
+
         @connection.on 'connect', =>
             @connected = true
 
             logger.info "Connection to redis store at #{@url} established"
+            logger.info "Remote redis store version '#{@connection.server_info.redis_version}' running on '#{@connection.server_info.os}' OS."
+
             if config.database?
                 logger.info "Changing redis db to #{config.database} ..."
                 @connection.select config.database, (err, response) ->
