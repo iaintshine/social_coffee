@@ -38,7 +38,7 @@ describe 'Friendship', ->
 
         describe 'users are not friends', ->
             beforeEach (done) ->
-                Database.drop (error) ->
+                Friendship.remove user_a, user_b, (error, removed) ->
                     done(error)    
 
             it 'shouldnt return any error', (done) ->
@@ -69,7 +69,7 @@ describe 'Friendship', ->
                     done(error)
 
             after (done) ->
-                Database.drop (error) ->
+                Friendship.remove user_a, user_b, (error, removed) ->
                     done(error)
 
             it 'shouldnt return any error', (done) ->
@@ -142,11 +142,6 @@ describe 'Friendship', ->
                     done()
 
         describe 'users are not friends', ->
-            # make sure there are no relationship in database
-            before (done) ->
-                Database.drop (error) ->
-                    done(error)
-
             it 'shouldnt return any error', (done) ->
                 Friendship.remove user_a, user_b, (error, removed) ->
                     (error is null).should.be.true
