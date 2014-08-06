@@ -10,8 +10,8 @@ logger  = require 'winston'
 
 class Config
     @query_files: ->
-        pattern = path.join KnownPath.config, '*.yaml'
-        @file_names = fs.readdirSync pattern
+        all_file_names = fs.readdirSync KnownPath.config
+        @file_names = all_file_names.filter (file_name) -> file_name.match(/\S*.yaml$/i)
 
     @sanitize: ->
         assert @file_names and @file_names.length > 0, "No configuration files found"
@@ -31,11 +31,18 @@ class Config
         assert doc and doc[Environment.current], "Configuration file '#{file_name}' requires '#{Environment.current}' environment configuration to be specified." 
         doc 
 
+    # here we announce (make it public) configuration for current running environment for every
+    # found configuration file. E.g. if we find db.yaml file one can ask Config.db.{attribute} for 
+    # attribute of database configuration. 
     @announce: ->
         for file_name in @file_names
+            logger.info "Processing configuration file '#{file_name}'"
+
             doc = @load_yaml file_name
-            for attribute, v of doc[Environment.current]
-                @[attribute] = v 
+            base_name = path.basename file_name, '.yaml'
+            logger.info "One can access configuration of '#{file_name}' with 'Config.#{base_name}' syntax."
+
+            @[base_name] = doc[Environment.current]
 
     @initialize: ->
         @query_files()
@@ -43,5 +50,5 @@ class Config
         @announce()
 
         
-module.export = Config
+module.exports = Config
         
