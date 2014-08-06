@@ -7,6 +7,7 @@ Environment = require './environment'
 KnownPath   = require './known_path'
 Logger      = require './logger'
 Config      = require './config'
+Database    = require './db'
 
 class Server
 
@@ -52,6 +53,8 @@ class Server
 
         # -- Database --
 
+        Database.connect Config.db
+
         # -- We are up and running --
 
         @store_pid()
@@ -59,6 +62,8 @@ class Server
 
     stop: ->
         logger.info "We are shutting down!"
+
+        Database.close()
 
         @remove_pid()
 
