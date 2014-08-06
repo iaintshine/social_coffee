@@ -1,4 +1,5 @@
 Database = require '../../lib/db'
+Friendship = require '../../lib/friendship'
 
 describe 'Friendship', ->
     user_a = 1
