@@ -1,18 +1,42 @@
 Environment = require './environment'
+Module      = require './module'
 
 assert = require 'assert'
 
 logger = require 'winston'
 redis  = require 'redis'
 
+Hookable =
+    hooks: {}
+    on: (event, callback) ->
+        assert event and typeof event == 'string', "event must be a string"
+        assert callback and callback instanceof Function, "This function call requires a callback"
+        (@hooks[event] ?= []).push callback
+    emit: (event, args...) ->
+        assert event and typeof event == 'string', "event must be a string"
+        if @hooks[event] 
+            hook args ... for hook in @hooks[event]
 
-class Database
+class Database extends Module
+   
+    # -- Attributes  -- 
+    
     @connected  = false
     @connection = null
     @config     = null
     @url        = null
 
     @current_db: => if @config? and @config.database? then @config.database else 0
+
+    # -- Connection hooks --
+    
+    @extends Hookable
+
+    @after_connect: => @emit 'connect', @connection
+    
+    @after_disconnect: => @emit 'close', @connection 
+
+    # -- Sanatization --
 
     @check_config: (config) ->
         assert config, "This function requires config"
@@ -25,6 +49,8 @@ class Database
         if config.password?
             assert typeof config.password == 'string', "Redis auth password must be a string"
             assert config.password.length > 0, "Redis auth password must be of length greater than 0"
+
+    # -- Connection handling --
 
     @connect: (config, callback) =>
         return if @connected
@@ -54,14 +80,16 @@ class Database
                 logger.info "Changing redis db to #{config.database} ..."
                 @connection.select config.database, (err, response) ->
                     logger.error "Failed to change db to #{config.database} due to errror. Falling back to db 0.", error: err.toString() if err 
-                    callback @connnection
+                    @after_connect()
             else
                 logger.info "Connected to redis db 0"
-                callback @connection
+                @after_connect()
 
         @connection.on 'end', =>
             @connected = false
             logger.warn "Connection to redis store at #{@url} closed."
+
+            @after_disconnect()
 
         @connection.on 'error', (err) ->
             logger.error "Error occurred during redis operation", error: err.toString()
@@ -75,6 +103,8 @@ class Database
 
         logger.info "Closing connection to redis store at #{@url} ..."
         @connection.quit()
+
+    # -- Utility methods --
 
     @drop: (callback) =>
         assert @connected, "Connection to the redis store not established."
