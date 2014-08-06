@@ -30,7 +30,7 @@ class Database extends Module
 
     # -- Connection hooks --
     
-    @extends Hookable
+    @extend Hookable
 
     @after_connect: => @emit 'connect', @connection
     
