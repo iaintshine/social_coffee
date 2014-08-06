@@ -12,7 +12,8 @@
     "main":     "lib/index.js",
     "dependencies": {
         "winston": "0.7.x",
-        "js-yaml": "3.0.x"
+        "js-yaml": "3.0.x",
+        "commander": "2.2.0"
     },
     "devDependencies": {
         "coffee-script": ">= 1.7.1",
