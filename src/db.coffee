@@ -69,13 +69,15 @@ class Database extends Module
         @config     = config
 
         @connection.debug_mode = Environment.debug
+        
+        @connection.on 'ready', =>
+            logger.info "Remote redis store version '#{@connection.server_info.redis_version}' is up and running on '#{@connection.server_info.os}' OS."
 
         @connection.on 'connect', =>
             @connected = true
 
             logger.info "Connection to redis store at #{@url} established"
-            logger.info "Remote redis store version '#{@connection.server_info.redis_version}' running on '#{@connection.server_info.os}' OS."
-
+            
             if config.database?
                 logger.info "Changing redis db to #{config.database} ..."
                 @connection.select config.database, (err, response) ->
@@ -92,7 +94,7 @@ class Database extends Module
             @after_disconnect()
 
         @connection.on 'error', (err) ->
-            logger.error "Error occurred during redis operation", error: err.toString()
+            logger.error "Error occurred during redis operation", error: err.toString() if err
 
         @connection.on 'drain', =>
             logger.info "TCP connection to redis store at #{@url} is now writable again."
@@ -110,8 +112,8 @@ class Database extends Module
         assert @connected, "Connection to the redis store not established."
         logger.warn "Dropping current db #{@current_db()} at #{@url}"
 
-        @connection.flushdb (err, response) ->
-            logger.error "Could not drop current db #{@current_db()} due to error", error: err.toString()
+        @connection.flushdb (err, response) =>
+            logger.error "Could not drop current db #{@current_db()} due to error", error: err.toString() if err
             callback err if callback
 
     @drop_all: (callback) =>
@@ -119,7 +121,7 @@ class Database extends Module
         logger.warn "Droping all databases at #{@url}."
 
         @connection.flushall (err, response) ->
-            logger.error "Could not drop all database due to error", error: err.toString()
+            logger.error "Could not drop all database due to error", error: err.toString() if err
             callback err if callback
 
 module.exports = Database
