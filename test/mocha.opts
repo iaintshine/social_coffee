@@ -1,0 +1,6 @@
+--require should
+--reporter spec
+--ui bdd
+--colors
+--compilers coffee:coffee-script/register
+--recursive
