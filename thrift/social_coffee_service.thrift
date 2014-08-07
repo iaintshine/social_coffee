@@ -3,6 +3,9 @@
  * friends and users relationships.
  */
 
+namespace * com.github.iaintshine.socialcoffee.thrift
+namespace SocialCoffee.Thrift
+
 //============================= Versioning ==================================
 
 /**
