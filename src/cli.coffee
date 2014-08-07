@@ -89,6 +89,11 @@ class CLI
         prompt = "#{options.host}:#{options.port}>"
         @cmd_interface.setPrompt prompt, prompt.length
 
+        @cmd_interface.on 'SIGINT', =>
+            @cmd_interface.question 'Are you sure you want to exit? [yes|no] ', (answer) =>
+                new QuitCommand(@cmd_interface).execute() if answer.match /^y(es)?$/i
+                @cmd_interface.prompt()
+
         @cmd_interface.on 'line', (line) =>
             commands = line.trim().split /\s+/i
 
