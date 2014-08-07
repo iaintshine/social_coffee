@@ -20,13 +20,13 @@ task 'watch', 'Watch src/ directory for changes', ->
         print data.toString()
 
 task 'generate:thrift', 'Generate thrift bindings', ->
-    # make sure */lib/thrift* and */doc* both directories exist
-    for subdir in ['lib/thrift', 'doc']
+    # make sure */lib/thrift*, */doc*, and *doc/thrift* directories exist
+    for subdir in ['lib/thrift', 'doc', 'doc/thrift']
         full_path = path.join __dirname, subdir
         fs.mkdirSync full_path unless fs.existsSync full_path
 
     # generate html documentation
-    sys_command 'thrift --gen html -o doc/ thrift/social_coffee_service.thrift', 'Generating thrift html documentation ...'
+    sys_command 'thrift --gen html -out doc/thrift thrift/social_coffee_service.thrift', 'Generating thrift html documentation ...'
 
     # generate nodejs bingins
     sys_command 'thrift --gen js:node -out lib/thrift thrift/social_coffee_service.thrift', 'Generating nodejs bindings ...'
