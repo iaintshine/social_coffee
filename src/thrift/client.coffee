@@ -5,9 +5,7 @@ thrift  = require 'thrift'
 logger  = require 'winston'
 
 class Thrift.Client
-    @connection = null
-    @client     = null
-
+    
     @connect: (host, port) ->
         assert host and typeof host == 'string', 'host parameter is invalid or missing'
         assert port and typeof port == 'number', 'port number is invalid or missing'
