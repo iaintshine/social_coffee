@@ -4,7 +4,7 @@
  */
 
 namespace * com.github.iaintshine.socialcoffee.thrift
-namespace SocialCoffee.Thrift
+namespace js SocialCoffee.Thrift
 
 //============================= Versioning ==================================
 

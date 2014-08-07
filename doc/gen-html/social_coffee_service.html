@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<title>Thrift module: social_coffee_service</title></head><body>
+<div class="container-fluid">
+<h1>Thrift module: social_coffee_service</h1>
+This file contains the protocol interface for operations to query
+friends and users relationships.
+<br/><table class="table-bordered table-striped table-condensed"><thead><th>Module</th><th>Services</th><th>Data types</th><th>Constants</th></thead>
+<tr>
+<td>social_coffee_service</td><td><a href="#Svc_SocialCoffeeService">SocialCoffeeService</a><br/>
+<ul>
+<li><a href="#Fn_SocialCoffeeService_create_friendship">create_friendship</a></li>
+<li><a href="#Fn_SocialCoffeeService_get_friends">get_friends</a></li>
+<li><a href="#Fn_SocialCoffeeService_remove_friendship">remove_friendship</a></li>
+</ul>
+</td>
+<td><a href="#Typedef_ID">ID</a><br/>
+<a href="#Struct_SocialException">SocialException</a><br/>
+</td>
+<td><code><a href="#Const_SOCIAL_COFFEE_VERSION_MAJOR">SOCIAL_COFFEE_VERSION_MAJOR</a></code><br/>
+<code><a href="#Const_SOCIAL_COFFEE_VERSION_MINOR">SOCIAL_COFFEE_VERSION_MINOR</a></code><br/>
+</code></td>
+</tr></table>
+<hr/><h2 id="Constants">Constants</h2>
+<table class="table-bordered table-striped table-condensed"><thead><th>Constant</th><th>Type</th><th>Value</th></thead>
+<tr id="Const_SOCIAL_COFFEE_VERSION_MAJOR"><td><code>SOCIAL_COFFEE_VERSION_MAJOR</code></td><td><code>i16</code></td><td><code>1</code></td></tr><tr><td colspan="3"><blockquote>Major version.
+<br/></blockquote></td></tr><tr id="Const_SOCIAL_COFFEE_VERSION_MINOR"><td><code>SOCIAL_COFFEE_VERSION_MINOR</code></td><td><code>i16</code></td><td><code>0</code></td></tr><tr><td colspan="3"><blockquote>Minor version.
+<br/></blockquote></td></tr></table><hr/><h2 id="Typedefs">Type declarations</h2>
+<div class="definition"><h3 id="Typedef_ID">Typedef: ID</h3>
+<p><strong>Base type:</strong>&nbsp;<code>i32</code></p>
+Every resource is assigned a unique numeric identifier which
+will not change for the life of the resource.
+<br/></div>
+<hr/><h2 id="Structs">Data structures</h2>
+<div class="definition"><h3 id="Struct_SocialException">Exception: SocialException</h3>
+<table class="table-bordered table-striped table-condensed"><thead><th>Key</th><th>Field</th><th>Type</th><th>Description</th><th>Requiredness</th><th>Default value</th></thead>
+<tr><td>1</td><td>message</td><td><code>string</code></td><td></td><td>required</td><td></td></tr>
+</table><br/>This exception is thrown when a call fails due to input data validation or
+any internall error occurs e.g. database connection refused.
+
+message: The string message indicating the type of error that occurred and the reason why it occurred.
+<br/></div><hr/><h2 id="Services">Services</h2>
+<h3 id="Svc_SocialCoffeeService">Service: SocialCoffeeService</h3>
+Service: SocialCoffeeService
+<br/><div class="definition"><h4 id="Fn_SocialCoffeeService_get_friends">Function: SocialCoffeeService.get_friends</h4>
+<pre><code>list&lt;<code><a href="social_coffee_service.html#Typedef_ID">ID</a></code>&gt;</code> get_friends(<code><a href="social_coffee_service.html#Typedef_ID">ID</a></code> id)
+    throws <code><a href="social_coffee_service.html#Struct_SocialException">SocialException</a></code>
+</pre>Returns a list of user's friends with provided ID.
+
+@param id
+     The ID of the user for whom the list of the friends should be retrieved.
+
+@return
+     The list of user's friends IDs. If user has no friends empty list is returned.
+
+@throws SocialException <ul>
+ <li>if ID is null</li>
+ <li>if ID is not a number<li>
+ <li>if ID is a non positive number</li>
+ <li>if internall error occurs e.g. connection to a database could not be established</li>
+</ul>
+<br/></div><div class="definition"><h4 id="Fn_SocialCoffeeService_create_friendship">Function: SocialCoffeeService.create_friendship</h4>
+<pre><code>bool</code> create_friendship(<code><a href="social_coffee_service.html#Typedef_ID">ID</a></code> usera,
+                       <code><a href="social_coffee_service.html#Typedef_ID">ID</a></code> userb)
+    throws <code><a href="social_coffee_service.html#Struct_SocialException">SocialException</a></code>
+</pre>Asks the service to make a new multual friendship relationship between users with IDs usera and userb.
+It's an idempotent operation so it can be called multiple times.
+
+@param usera
+     The ID of the user A.
+
+@param userb
+     The ID of the user B.
+
+@return
+     Boolean value indicating whether the operation created a new relationship or relationship already existed.
+     "true" if operation created a new friendship relationship, "false" otherwise.
+
+@throws SocialException <ul>
+ <li>if any of IDs is null</li>
+ <li>if any of IDs is not a number<li>
+ <li>if any of IDs is a non positive number</li>
+ <li>if both of IDs are equal</li>
+ <li>if internall error occurs e.g. connection to a database could not be established</li>
+</ul>
+<br/></div><div class="definition"><h4 id="Fn_SocialCoffeeService_remove_friendship">Function: SocialCoffeeService.remove_friendship</h4>
+<pre><code>bool</code> remove_friendship(<code><a href="social_coffee_service.html#Typedef_ID">ID</a></code> usera,
+                       <code><a href="social_coffee_service.html#Typedef_ID">ID</a></code> userb)
+    throws <code><a href="social_coffee_service.html#Struct_SocialException">SocialException</a></code>
+</pre>Asks the service to remove a new friendship relationship between users with IDs usera and userb.
+It's an idempotent operation so it can be called multiple times.
+
+@param usera
+     The ID of the user A.
+
+@param userb
+     The ID of the user B.
+
+@return
+     Boolean value indicating whether the operation removed an already existed relationship or operation did nothing.
+     "true" if operation removed an already existed friendship relationship, "false" otherwise.
+
+@throws SocialException <ul>
+ <li>if any of IDs is null</li>
+ <li>if any of IDs is not a number<li>
+ <li>if any of IDs is a non positive number</li>
+ <li>if both of IDs are equal</li>
+ <li>if internall error occurs e.g. connection to a database could not be established</li>
+</ul>
+<br/></div></div></body></html>
