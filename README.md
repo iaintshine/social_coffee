@@ -17,3 +17,15 @@ Social graph Thrift's service
 * Globally installed Cake
 
     [sudo] npm install -g cake
+
+*  Query friends
+
+    SELECT * FROM friendlist WHERE owner = uid
+
+* Create friendship
+
+    INSERT INTO friendship(UID1, UID2) VALUES (1, 2)
+
+* Remove friendship
+
+    DELETE FROM friendship WHERE UID1 == 1 AND UID2 == 2
