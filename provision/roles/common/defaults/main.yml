@@ -1,6 +1,6 @@
 ---
 firewall_enabled: true
-logwatch_email: boguslaw.mista@realitypump.com
+logwatch_email: no-reply@platform.com
 logwatch_detail: high
 
 ## Supervisor related
