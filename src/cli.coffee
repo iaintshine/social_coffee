@@ -144,6 +144,27 @@ class RemoveFriendshipCommand extends Command
                     console.log "friendship just removed: " + removed
                 @prompt()
 
+# ## Commands List
+
+# Below code shows a sample session from interaction with `social-cli` command line tool.
+#  
+# ```
+#   localhost:9000>info: client connected to remote server
+#   localhost:9000>ping
+#   pong
+#   localhost:9000>friends list 1
+#   []
+#   localhost:9000>friendship create 1 2
+#   friendship newely created: true
+#   localhost:9000>friends list 1
+#   [ 2 ]
+#   localhost:9000>friendship remove 1 2
+#   friendship just removed: true
+#   localhost:9000>friends list 1
+#   []
+#   localhost:9000>quit
+#   bye bye...
+# ```   
 class CLI
     constructor: ->
         @completer = new Completer

@@ -108,9 +108,24 @@ existed friendship relationship or did nothing.</p></div></div><div class="code"
                     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span>
                 <span class="k">else</span>
                     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;friendship just removed: &quot;</span> <span class="o">+</span> <span class="nx">removed</span>
-                <span class="nx">@prompt</span><span class="p">()</span>
+                <span class="nx">@prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="commands-list">Commands List</h2></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Below code shows a sample session from interaction with <code>social-cli</code> command line tool.</p>
 
-<span class="k">class</span> <span class="nx">CLI</span>
+<pre><code>  localhost:9000&gt;info: client connected to remote server
+  localhost:9000&gt;ping
+  pong
+  localhost:9000&gt;friends list 1
+  []
+  localhost:9000&gt;friendship create 1 2
+  friendship newely created: true
+  localhost:9000&gt;friends list 1
+  [ 2 ]
+  localhost:9000&gt;friendship remove 1 2
+  friendship just removed: true
+  localhost:9000&gt;friends list 1
+  []
+  localhost:9000&gt;quit
+  bye bye...
+</code></pre></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">CLI</span>
     <span class="nv">constructor: </span><span class="nf">-&gt;</span>
         <span class="vi">@completer = </span><span class="k">new</span> <span class="nx">Completer</span>
 
