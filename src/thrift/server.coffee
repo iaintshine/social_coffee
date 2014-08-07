@@ -43,3 +43,5 @@ class Thrift.Server
                 logger.info "Social Coffee thrift server is closed. No more connections will be accepted."
                 callback() if callback? and typeof callback == 'function'
                 @server = null
+
+module.exports = Thrift.Server
