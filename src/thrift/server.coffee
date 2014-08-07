@@ -2,17 +2,19 @@ ttypes      = require './social_coffee_service_types'
 Processor   = require './SocialCoffeeService'
 Handler     = require './handler'
 
-thrift  = require 'thrift'
+assert  = require 'assert'
+
+thrift  = require 'node-thrift'
 logger  = require 'winston'
 
-class Thrift.Server
+class SocialCoffee.Thrift.Server
 
     constructor: ->
         @server = null
 
     start: (options, callback) ->
         assert options, "This function call requires options"
-        assert options.port and typeof port == 'number' and port >= 0, "port value is invalid or missing"
+        assert options.port and typeof options.port == 'number' and options.port >= 0, "port value is invalid or missing"
 
         thrift_options = 
             transport: thrift.TFramedTransport
@@ -44,4 +46,4 @@ class Thrift.Server
                 callback() if callback? and typeof callback == 'function'
                 @server = null
 
-module.exports = Thrift.Server
+exports.Server = SocialCoffee.Thrift.Server

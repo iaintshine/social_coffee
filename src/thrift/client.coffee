@@ -1,10 +1,10 @@
 ttypes      = require './social_coffee_service_types'
 Processor   = require './SocialCoffeeService'
 
-thrift  = require 'thrift'
+thrift  = require 'node-thrift'
 logger  = require 'winston'
 
-class Thrift.Client
+class SocialCoffe.Thrift.Client
     
     @connect: (host, port) ->
         assert host and typeof host == 'string', 'host parameter is invalid or missing'
@@ -27,4 +27,4 @@ class Thrift.Client
         @client
 
 
-module.exports = Thrift.Client
+exports.Client = SocialCoffee.Thrift.Client

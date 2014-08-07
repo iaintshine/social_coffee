@@ -1,6 +1,7 @@
 fs     = require 'fs'
 path   = require 'path'
 logger = require 'winston'
+assert = require 'assert'
 
 SocialCoffee= require './version'
 Environment = require './environment' 
@@ -8,6 +9,7 @@ KnownPath   = require './known_path'
 Logger      = require './logger'
 Config      = require './config'
 Database    = require './db'
+Thrift      = require './thrift/server'
 
 class Server
 
@@ -43,7 +45,7 @@ class Server
 
     start: (options) ->
         assert options, "This function requires options"
-        assert config.port and typeof config.port == 'number' and config.port >= 0, "port configuration is invalid or missing"
+        assert options.port and typeof options.port == 'number' and options.port >= 0, "port configuration is invalid or missing"
         
         # -- Introduce --
 
@@ -63,12 +65,18 @@ class Server
         @store_pid()
         logger.info "Process PID #{process.pid} stored in #{@pid_path}"
 
+        # -- Start thrift server --
+        @thrift_server = new Thrift.Server
+        @thrift_server.start options, ->
+            logger.info "All things are set up!"
+
     stop: ->
-        logger.info "We are shutting down!"
+        @thrift_server.stop =>
+            logger.info "We are shutting down!"
 
-        Database.close()
+            Database.close()
 
-        @remove_pid()
+            @remove_pid()
 
 
 module.exports = Server

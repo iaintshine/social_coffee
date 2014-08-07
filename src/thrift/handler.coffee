@@ -1,8 +1,8 @@
 ttypes      = require './social_coffee_service_types'
 Friendship  = require '../friendship' 
 
-class Thrift.Handler
-
+class SocialCoffee.Thrift.Handler
+    
     # -- Thrift helpers --
 
     @failure: (error, result) ->
@@ -11,9 +11,6 @@ class Thrift.Handler
     @success: (value, result) ->
         result null, value
 
-
-class SocialCoffee.Thrift.Handler extends Thrift.Handler
-    
     # -- Handler implementation --
 
     @get_friends: (id, result) =>
