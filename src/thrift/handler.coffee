@@ -13,6 +13,9 @@ class SocialCoffee.Thrift.Handler
 
     # -- Handler implementation --
 
+    @ping: (result) =>
+       result(null, "pong")
+
     @get_friends: (id, result) =>
         Friendship.select id, (error, friends) =>
             if error

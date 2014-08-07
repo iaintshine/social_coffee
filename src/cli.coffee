@@ -10,6 +10,7 @@ class Completer
         friends: ['list']
         friendship: ['create', 'remove']
         quit: []
+        ping: []
     
     complete: (line) ->
         commands = line.trim().split /\s+/i
@@ -45,12 +46,19 @@ class QuitCommand extends Command
         console.log "bye bye ..."
         @context.close()
 
+class PingCommand extends Command 
+
+    execute: (commands) ->
+        Thrift.Client.client.ping (err, result) ->
+            console.log result
+
 class ListFriendsCommand extends Command
 
     execute: (commands) ->
         if commands.length == 3
             id = parseInt commands[2]
             Thrift.Client.client.get_friends id, (err, friends) ->
+                console.log err
                 console.log friends
 
 class CreateFriendshipCommand extends Command 
@@ -127,6 +135,8 @@ class CLI
                         switch commands[1]
                             when 'create' then new CreateFriendshipCommand(@cmd_interface).execute commands 
                             when 'remove' then new RemoveFriendshipCommand(@cmd_interface).execute commands
+                when "ping"
+                    new PingCommand(@cmd_interface).execute commands
                 when "quit"
                     new QuitCommand(@cmd_interface).execute commands
                 else

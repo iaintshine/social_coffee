@@ -15,6 +15,7 @@ friends and users relationships.
 <ul>
 <li><a href="#Fn_SocialCoffeeService_create_friendship">create_friendship</a></li>
 <li><a href="#Fn_SocialCoffeeService_get_friends">get_friends</a></li>
+<li><a href="#Fn_SocialCoffeeService_ping">ping</a></li>
 <li><a href="#Fn_SocialCoffeeService_remove_friendship">remove_friendship</a></li>
 </ul>
 </td>
@@ -46,7 +47,15 @@ message: The string message indicating the type of error that occurred and the r
 <br/></div><hr/><h2 id="Services">Services</h2>
 <h3 id="Svc_SocialCoffeeService">Service: SocialCoffeeService</h3>
 Service: SocialCoffeeService
-<br/><div class="definition"><h4 id="Fn_SocialCoffeeService_get_friends">Function: SocialCoffeeService.get_friends</h4>
+<br/><div class="definition"><h4 id="Fn_SocialCoffeeService_ping">Function: SocialCoffeeService.ping</h4>
+<pre><code>string</code> ping()
+</pre>Returns a "pong" string.
+
+@return
+     "pong" string.
+
+@throws never
+<br/></div><div class="definition"><h4 id="Fn_SocialCoffeeService_get_friends">Function: SocialCoffeeService.get_friends</h4>
 <pre><code>list&lt;<code><a href="social_coffee_service.html#Typedef_ID">ID</a></code>&gt;</code> get_friends(<code><a href="social_coffee_service.html#Typedef_ID">ID</a></code> id)
     throws <code><a href="social_coffee_service.html#Struct_SocialException">SocialException</a></code>
 </pre>Returns a list of user's friends with provided ID.

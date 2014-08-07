@@ -45,6 +45,18 @@ typedef i32 ID
  */
 service SocialCoffeeService {
 
+    //============================= Health Operations ==================================
+
+    /**
+     * Returns a "pong" string. 
+     *
+     * @return 
+     *      "pong" string.
+     *
+     * @throws never
+     */
+    string ping()
+
     //============================= Query Operations ==================================
 
     /**
