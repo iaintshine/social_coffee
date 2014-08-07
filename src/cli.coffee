@@ -4,9 +4,46 @@ SocialCoffee = require './version'
 readline  = require 'readline'
 Commander = require 'commander'
 
+class Completer
+
+    COMPLETIONS = 
+        friends: ['list']
+        friendship: ['create', 'remove']
+        quit: []
+    
+    complete: (line) ->
+        commands = line.trim().split /\s+/i
+        
+        if commands.length == 2
+            if COMPLETIONS[commands[0]]
+                hits = COMPLETIONS[commands[0]].filter (c) -> c.indexOf(commands[1]) == 0
+                suggestions = if hits.length > 0 then hits else COMPLETIONS[commands[0]]
+            else 
+                suggestions = []
+            line_part = commands[1] 
+        else if commands.length == 1 and line[line.length - 1] == ' '
+            suggestions = if COMPLETIONS[commands[0]] then COMPLETIONS[commands[0]] else []
+            line_part = commands[0]
+        else if commands.length == 1
+            hits = Object.keys(COMPLETIONS).filter (c) -> c.indexOf(commands[0]) == 0
+            suggestions = if hits.length > 0 then hits else Object.keys(COMPLETIONS)
+            line_part = commands[0]
+
+        [suggestions, line_part]
+
 class CLI
-    completer: (line) ->
-        null
+    constructor: ->
+        @completer = new Completer
+
+    handle_friends: (commands) ->
+        console.log commands
+
+    handle_friendship: (commands) ->
+        console.log commands
+
+    handle_quit: ->
+        console.log "bye bye ..."
+        @cmd_interface.close()
 
     start: (args) ->
  
@@ -33,7 +70,7 @@ class CLI
         cmd_options = 
             input: process.stdin
             output: process.stdout
-            completer: @completer
+            completer: @completer.complete
 
         @cmd_interface = readline.createInterface cmd_options
 
@@ -42,7 +79,20 @@ class CLI
         prompt = "#{options.host}:#{options.port}>"
         @cmd_interface.setPrompt prompt, prompt.length
 
-        @cmd_interface.on 'line', (line) ->
+        @cmd_interface.on 'line', (line) =>
+            commands = line.trim().split /\s+/i
+
+            switch commands[0]
+                when "friends"
+                    @handle_friends commands
+                when "friendship"
+                    @handle_friendship commands
+                when "quit"
+                    @handle_quit()
+                else
+                    console.log 'command unknown' if line.trim().length > 0 
+
+            @cmd_interface.prompt()
 
         @cmd_interface.on 'close', ->
             process.exit 0
