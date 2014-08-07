@@ -11,8 +11,8 @@ class SocialCoffee.Thrift.Client
     @client     = null
 
     @connect: (host, port, callback) ->
-        assert host and typeof host == 'string', 'host parameter is invalid or missing'
-        assert port and typeof port == 'number', 'port number is invalid or missing'
+        assert host? and typeof host == 'string', 'host parameter is invalid or missing'
+        assert port? and typeof port == 'number', 'port number is invalid or missing'
 
         thrift_options = 
             transport: thrift.TFramedTransport

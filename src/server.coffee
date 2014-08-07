@@ -45,7 +45,7 @@ class Server
 
     start: (options) ->
         assert options, "This function requires options"
-        assert options.port and typeof options.port == 'number' and options.port >= 0, "port configuration is invalid or missing"
+        assert options.port? and typeof options.port == 'number' and options.port >= 0, "port configuration is invalid or missing"
         
         # -- Introduce --
 

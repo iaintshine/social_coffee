@@ -7,6 +7,7 @@ global.server = new Server
 
 post_lift = (done) ->
     (connection) ->
+        Database.drop()
         SeedGenerator.seed()
         done()
 

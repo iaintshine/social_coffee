@@ -14,7 +14,7 @@ class SocialCoffee.Thrift.Server
 
     start: (options, callback) ->
         assert options, "This function call requires options"
-        assert options.port and typeof options.port == 'number' and options.port >= 0, "port value is invalid or missing"
+        assert options.port? and typeof options.port == 'number' and options.port >= 0, "port value is invalid or missing"
 
         thrift_options = 
             transport: thrift.TFramedTransport
