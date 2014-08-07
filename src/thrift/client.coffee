@@ -7,7 +7,9 @@ thrift  = require 'node-thrift'
 logger  = require 'winston'
 
 class SocialCoffee.Thrift.Client
-    
+    @connection = null
+    @client     = null
+
     @connect: (host, port) ->
         assert host and typeof host == 'string', 'host parameter is invalid or missing'
         assert port and typeof port == 'number', 'port number is invalid or missing'
@@ -28,5 +30,7 @@ class SocialCoffee.Thrift.Client
 
         @client
 
+    @close: ->
+        @connection.emit 'close' if @connection
 
 exports.Client = SocialCoffee.Thrift.Client

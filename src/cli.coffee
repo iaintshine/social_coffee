@@ -114,7 +114,8 @@ class CLI
 
             @cmd_interface.prompt()
 
-        @cmd_interface.on 'close', ->
+        @cmd_interface.on 'close', =>
+            Thrift.Client.close()
             process.exit 0
 
         # -- Wait for user input -- 
