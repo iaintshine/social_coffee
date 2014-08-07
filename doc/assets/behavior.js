@@ -117,10 +117,73 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
         "projectPath": "src/cli.coffee",
         "targetPath": "cli",
         "pageTitle": "cli",
-        "title": "cli"
+        "firstHeader": {
+          "type": "heading",
+          "data": {
+            "level": 1,
+            "title": "Command Line Interface",
+            "slug": "command-line-interface",
+            "isFileHeader": true
+          },
+          "depth": 1,
+          "children": [
+            {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Autocompletion",
+                "slug": "autocompletion"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Command pattern",
+                "slug": "command-pattern"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "CLI Options",
+                "slug": "cli-options"
+              },
+              "depth": 2
+            }
+          ]
+        },
+        "title": "Command Line Interface"
       },
       "depth": 1,
-      "outline": []
+      "outline": [
+        {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "Autocompletion",
+            "slug": "autocompletion"
+          },
+          "depth": 2
+        }, {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "Command pattern",
+            "slug": "command-pattern"
+          },
+          "depth": 2
+        }, {
+          "type": "heading",
+          "data": {
+            "level": 2,
+            "title": "CLI Options",
+            "slug": "cli-options"
+          },
+          "depth": 2
+        }
+      ]
     }, {
       "type": "file",
       "data": {

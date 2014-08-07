@@ -1,18 +1,21 @@
-<!DOCTYPE html><html lang="en"><head><title>cli</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="cli"><meta name="groc-project-path" content="src/cli.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/cli.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">Thrift = </span><span class="nx">require</span> <span class="s">&#39;./thrift/client&#39;</span>
+<!DOCTYPE html><html lang="en"><head><title>cli</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="cli"><meta name="groc-project-path" content="src/cli.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/cli.coffee</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h1 id="command-line-interface">Command Line Interface</h1></div></div></div><div class="segment"><div class="code"><div class="wrapper"><span class="nv">Thrift = </span><span class="nx">require</span> <span class="s">&#39;./thrift/client&#39;</span>
 <span class="nv">SocialCoffee = </span><span class="nx">require</span> <span class="s">&#39;./version&#39;</span>
 
 <span class="nv">readline  = </span><span class="nx">require</span> <span class="s">&#39;readline&#39;</span>
-<span class="nv">Commander = </span><span class="nx">require</span> <span class="s">&#39;commander&#39;</span>
-
-<span class="k">class</span> <span class="nx">Completer</span>
+<span class="nv">Commander = </span><span class="nx">require</span> <span class="s">&#39;commander&#39;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="autocompletion">Autocompletion</h2></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>Completer</code> class is used by <code>readline</code> interface to Tab autocomplete user input.</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">Completer</span>
 
     <span class="nv">COMPLETIONS = </span>
         <span class="nv">friends: </span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
         <span class="nv">friendship: </span><span class="p">[</span><span class="s">&#39;create&#39;</span><span class="p">,</span> <span class="s">&#39;remove&#39;</span><span class="p">]</span>
         <span class="nv">quit: </span><span class="p">[]</span>
         <span class="nv">ping: </span><span class="p">[]</span>
-    
-    <span class="nv">complete: </span><span class="nf">(line) -&gt;</span>
+    </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>The <code>complete</code> method is give the current line entered by the user, and returns an array with 
+two entries. The first is an array with matching entries for the completion. The second one
+is the substring that was used for the matching.
+The algorithm if fairly simple. if we see an empty character as the last one in a line than we show
+all the options for a latest command or all options, if there were no previous command present.
+If we are in the middle of command typing we filter completion options with those that might contain
+a substring with current part of the command.</p></div></div><div class="code"><div class="wrapper">    <span class="nv">complete: </span><span class="nf">(line) -&gt;</span>
         <span class="nv">commands = </span><span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">().</span><span class="nx">split</span> <span class="sr">/\s+/i</span>
         
         <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">2</span>
@@ -30,25 +33,22 @@
             <span class="nv">suggestions = </span><span class="k">if</span> <span class="nx">hits</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">then</span> <span class="nx">hits</span> <span class="k">else</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">COMPLETIONS</span><span class="p">)</span>
             <span class="nv">line_part = </span><span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="p">[</span><span class="nx">suggestions</span><span class="p">,</span> <span class="nx">line_part</span><span class="p">]</span>
-
-<span class="k">class</span> <span class="nx">Command</span>
+        <span class="p">[</span><span class="nx">suggestions</span><span class="p">,</span> <span class="nx">line_part</span><span class="p">]</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="command-pattern">Command pattern</h2></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>Command</code> class is a generic class that represents the command pattern, behavioural design pattern.
+All the commands are constructed by requiring <code>readline</code> interface as a context and supports some
+additional helper methods that will be useful in executing command in a later time.  </p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">Command</span>
     <span class="nv">constructor: </span><span class="nf">(context) -&gt;</span>
         <span class="vi">@context = </span><span class="nx">context</span>
 
-    <span class="nv">prompt: </span><span class="nf">-&gt;</span> <span class="nx">@context</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span>
-
-    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">commands</span> 
-
-
-<span class="k">class</span> <span class="nx">QuitCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
+    <span class="nv">prompt: </span><span class="nf">-&gt;</span> <span class="nx">@context</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>All classes derived from <code>Command</code> should implement it's own behaviour by implementing <code>#execute</code>
+method. Default behaviour is to display an array of trimmed client commands. </p></div></div><div class="code"><div class="wrapper">    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">commands</span> </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>QuitCommand</code> is issued if user writes <code>quit</code> command in terminal.
+The command disconnects thrift's client from remote server and close <code>readline</code> interface.</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">QuitCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
 
     <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;bye bye ...&quot;</span>
-        <span class="nx">@context</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span>
-
-<span class="k">class</span> <span class="nx">PingCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
+        <span class="nx">@context</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>PingCommand</code> is just a utility command used for asking if we have a connection to remote server.
+The command is issued if user writes <code>ping</code> command in terminal. If the client is connected to 
+thrift's server it will respond with <code>pong</code> string, displayd in a console.</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">PingCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
 
     <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
         <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">ping</span> <span class="nf">(err, result) =&gt;</span>
@@ -56,9 +56,8 @@
                 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span> 
             <span class="k">else</span>
                 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">result</span>
-            <span class="nx">@prompt</span><span class="p">()</span>
-
-<span class="k">class</span> <span class="nx">ListFriendsCommand</span> <span class="k">extends</span> <span class="nx">Command</span>
+            <span class="nx">@prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>ListFriends</code> command is issued if user writes <code>friends list {id}</code> where an id is user's unique identifier.
+If a user has friends than the list of user's friends IDs is displayed, or empty array otherwise.    </p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">ListFriendsCommand</span> <span class="k">extends</span> <span class="nx">Command</span>
 
     <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
         <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">3</span>
@@ -73,9 +72,9 @@
                     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span>
                 <span class="k">else</span>
                     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">friends</span>
-                <span class="nx">@prompt</span><span class="p">()</span>
-
-<span class="k">class</span> <span class="nx">CreateFriendshipCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
+                <span class="nx">@prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>CreateFriends</code> command is issued if user writes <code>friendship create {usera} {userb}</code> where usera and userb are
+both users ids. The command call displays a message indicating whether or not the operation performed created a new
+friendship relationship or relationship already existed and did nothing. </p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">CreateFriendshipCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
 
     <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
         <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">4</span>
@@ -91,9 +90,9 @@
                     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span>
                 <span class="k">else</span>
                     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;friendship newely created: &quot;</span> <span class="o">+</span> <span class="nx">created</span>
-                <span class="nx">@prompt</span><span class="p">()</span>
-
-<span class="k">class</span> <span class="nx">RemoveFriendshipCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
+                <span class="nx">@prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>RemoveFriends</code> comand is issued if user writes <code>friendship remove {usera} {userb}</code> where usera and userb are
+both users ids. The command call displays a message indicating whether or not the operation performed removed
+existed friendship relationship or did nothing.</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">RemoveFriendshipCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
 
     <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
         <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">4</span>
@@ -116,19 +115,27 @@
         <span class="vi">@completer = </span><span class="k">new</span> <span class="nx">Completer</span>
 
     <span class="nv">start: </span><span class="nf">(args) -&gt;</span>
- </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Parse command line arguments --</p></div></div><div class="code"><div class="wrapper">        
-        <span class="nx">Commander</span>
+ </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h2 id="cli-options">CLI Options</h2></div></div><div class="code"><div class="wrapper">        </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Input arguments are parsed by <code>Commander</code> package. It's very easy to use 
+solution for command - line interfaces. 
+<code>social-cli</code> command comes with just two options. The first one specifies a port number 
+and the second one specifies a host to which SocialCoffee thrift client should connect.</p></div></div><div class="code"><div class="wrapper">        <span class="nx">Commander</span>
             <span class="p">.</span><span class="nx">version</span><span class="p">(</span><span class="s">&quot;Social Coffee v</span><span class="si">#{</span><span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">version</span><span class="si">}</span><span class="s"> &#39;</span><span class="si">#{</span><span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">codename</span><span class="si">}</span><span class="s">&#39;&quot;</span><span class="p">)</span>
             <span class="p">.</span><span class="nx">option</span><span class="p">(</span><span class="s">&#39;-p, --port &lt;n&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;Port number&#39;</span><span class="p">,</span> <span class="nb">parseInt</span><span class="p">)</span>
             <span class="p">.</span><span class="nx">option</span><span class="p">(</span><span class="s">&#39;-h, --host [host]&#39;</span><span class="p">,</span> <span class="s">&#39;Host number&#39;</span><span class="p">,</span> <span class="s">&#39;localhost&#39;</span><span class="p">)</span>
-            <span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Configure run --</p></div></div><div class="code"><div class="wrapper">        <span class="nv">options = </span><span class="p">{}</span>
+            <span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Configure run. Set default values if they were not present in command line call.
+Default port is <code>9090</code> and default host is <code>localhost</code>. </p></div></div><div class="code"><div class="wrapper">        <span class="nv">options = </span><span class="p">{}</span>
         <span class="nx">options</span><span class="p">[</span><span class="s">&#39;host&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">Commander</span><span class="p">.</span><span class="nx">host</span> <span class="o">||</span> <span class="s">&#39;localhost&#39;</span>
-        <span class="nx">options</span><span class="p">[</span><span class="s">&#39;port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">Commander</span><span class="p">.</span><span class="nx">port</span> <span class="o">||</span> <span class="mi">9090</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Create readline interface instance -- </p></div></div><div class="code"><div class="wrapper">        <span class="nv">cmd_options = </span>
+        <span class="nx">options</span><span class="p">[</span><span class="s">&#39;port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">Commander</span><span class="p">.</span><span class="nx">port</span> <span class="o">||</span> <span class="mi">9090</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Create <code>readline</code> interface instance. </p></div></div><div class="code"><div class="wrapper">        <span class="nv">cmd_options = </span>
             <span class="nv">input: </span><span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span>
             <span class="nv">output: </span><span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span>
             <span class="nv">completer: </span><span class="nx">@completer</span><span class="p">.</span><span class="nx">complete</span>
 
-        <span class="vi">@cmd_interface = </span><span class="nx">readline</span><span class="p">.</span><span class="nx">createInterface</span> <span class="nx">cmd_options</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Set the prompt --</p></div></div><div class="code"><div class="wrapper">        <span class="nv">prompt = </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">options</span><span class="p">.</span><span class="nx">host</span><span class="si">}</span><span class="s">:</span><span class="si">#{</span><span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="si">}</span><span class="s">&gt;&quot;</span>
+        <span class="vi">@cmd_interface = </span><span class="nx">readline</span><span class="p">.</span><span class="nx">createInterface</span> <span class="nx">cmd_options</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>We set the prompt to value in form <code>host:port&gt;</code>. 
+If we consider the case where no parameters were specified than we can expect
+the prompt in form</p>
+
+<pre><code>  localhost:9090&gt;
+</code></pre></div></div><div class="code"><div class="wrapper">        <span class="nv">prompt = </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">options</span><span class="p">.</span><span class="nx">host</span><span class="si">}</span><span class="s">:</span><span class="si">#{</span><span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="si">}</span><span class="s">&gt;&quot;</span>
         <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">setPrompt</span> <span class="nx">prompt</span><span class="p">,</span> <span class="nx">prompt</span><span class="p">.</span><span class="nx">length</span>
 
         <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;SIGINT&#39;</span><span class="p">,</span> <span class="o">=&gt;</span>
@@ -159,7 +166,7 @@
 
         <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;close&#39;</span><span class="p">,</span> <span class="o">=&gt;</span>
             <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span>
-            <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">0</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Connect to thrift server --</p></div></div><div class="code"><div class="wrapper">        <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">connect</span> <span class="nx">options</span><span class="p">.</span><span class="nx">host</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="p">,</span> <span class="o">=&gt;</span>
-            <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Wait for user input -- </p></div></div><div class="code"><div class="wrapper">        <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span>
+            <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">0</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Connect to thrift server</p></div></div><div class="code"><div class="wrapper">        <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">connect</span> <span class="nx">options</span><span class="p">.</span><span class="nx">host</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="p">,</span> <span class="o">=&gt;</span>
+            <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Wait for user input </p></div></div><div class="code"><div class="wrapper">        <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span>
 
 <span class="nv">module.exports = </span><span class="nx">CLI</span></div></div></div></div></body></html>
