@@ -5,6 +5,8 @@
 
 namespace * com.github.iaintshine.socialcoffee.thrift
 namespace js SocialCoffee.Thrift
+namespace rb SocialCoffee.Thrift
+namespace py socialcoffee.thrift
 
 //============================= Versioning ==================================
 
