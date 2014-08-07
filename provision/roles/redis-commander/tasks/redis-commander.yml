@@ -1,0 +1,19 @@
+---
+- name: NPM install gloabl redis-commander
+  npm: 
+    name='redis-commander'
+    global=yes
+
+- name: Create supervisor configuration
+  template:
+    src='redis-commander.conf.j2'
+    dest='/etc/supervisor/conf.d/redis-commander.conf'
+
+- name: Allow http interface at port {{ redis_commander.port }}
+  action: shell ufw allow {{ redis_commander.port }}
+
+- name: Make sure redis-commander is up and running
+  supervisorctl:
+    name='redis_commander'
+    state=present
+    config=/etc/supervisor/supervisord.conf

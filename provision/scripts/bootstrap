@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+__version__ = '0.1.0'
+__author__  = 'bodziomista@gmail.com'
+
+import os
+import sys
+import fileinput
+
+nodes = { 'srv01.platform.com': '192.168.101.10' }
+
+def version():
+    """Print the version"""
+
+    raise SystemExit(__version__)
+
+def known_host(line):
+    for nodename in nodes:
+        if nodename in line:
+            return True
+    return False
+
+def clear_hosts():
+     for line in fileinput.input('/etc/hosts', inplace=True):
+        if known_host(line):
+            continue
+        else:
+            print(line, end='')
+
+def append_hosts():
+    with open('/etc/hosts', 'a') as hosts:
+        for nodename, ip in nodes.iteritems():
+            hosts.write('{0}\t{1}\n'.format(ip, nodename))
+
+
+def bootstrap():
+    """Run the bootstrap script"""
+    
+    clear_hosts()
+    append_hosts()
+
+
+def main():
+    try:
+        bootstrap()
+    except Exception as e:
+        print("Unexpected error:", e)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,145 @@
+---
+# The playbook for common tasks
+
+- name: Update apt cache
+  apt: 
+    update_cache=yes
+    cache_valid_time=3600 # run apt-get update if the last one is more than 1 hour ago
+
+# - name: Upgrade the distro 
+#   apt: upgrade=yes
+
+- name: Install packages
+  apt:
+    pkg={{ item }}
+    state=latest
+  with_items:
+    - build-essential
+    - git 
+    - tree
+    - vim 
+    - fail2ban
+    - psmisc
+    - ufw
+    - zip
+    - rsync 
+    - wget
+    - curl 
+    - unattended-upgrades
+  notify:
+    - restart fail2ban
+
+- name: Reset firewall 
+  action: shell ufw --force reset
+
+- name: Allow firewall authorized ports 
+  action: shell ufw allow {{ item }}
+  with_items:
+    - 22
+
+- name: Enable firewall
+  action: shell ufw --force enable 
+
+# - name: Change 'root' password
+#   user: 
+#     name=root
+#     password={{ root_password }}
+
+- name: Add user 'deploy'
+  user:
+    name=deploy
+    password={{ deploy_password }}
+    shell=/bin/bash
+
+- name: Add SSH public key to user 'deploy'
+  authorized_key:
+    user=deploy
+    key="{{ lookup('file', '../files/id_rsa.pub') }}"
+
+- name: Add user 'deploy' to sudoers
+  lineinfile:
+    "dest=/etc/sudoers
+    regexp='^deploy ALL'
+    line='deploy ALL=(ALL) NOPASSWD: ALL'
+    state=present"
+
+- name: Add group 'sshusers'
+  group:
+    name=sshusers
+    system=yes
+    state=present
+
+- name: Add user 'deploy' to 'sshusers' group
+  user:
+    name=deploy
+    append=true
+    groups=sshusers
+
+- name: Add user 'vagrant' to 'sshusers' group
+  user:
+    name=vagrant
+    append=true
+    groups=sshusers
+
+- name: Disallow root SSH access
+  lineinfile:
+    dest=/etc/ssh/sshd_config
+    regexp='^PermitRootLogin'
+    line='PermitRootLogin no'
+    state=present
+  notify:
+    - restart sshd
+
+- name: Disallow SSH password authentication
+  lineinfile:
+    dest=/etc/ssh/sshd_config
+    regexp='^PasswordAuthentication'
+    line='PasswordAuthentication no'
+    state=present
+  notify:
+    - restart sshd
+
+- name: Disallow SSH GSS API authentication
+  lineinfile:
+    dest=/etc/ssh/sshd_config
+    regexp='^GSSAPIAuthentication'
+    line='GSSAPIAuthentication no'
+    state=present
+  notify:
+    - restart sshd
+
+- name: Allow only users in 'sshusers' group to access server using SSH
+  lineinfile:
+    dest=/etc/ssh/sshd_config
+    regexp='^AllowGroups'
+    line='AllowGroups sshusers'
+    state=present
+  notify:
+    - restart sshd
+
+- name: Install logwatch to keep eye on things
+  apt:
+    pkg=logwatch
+    state=latest
+
+- name: Configure logwatch to send server logs to me
+  lineinfile:
+    dest=/etc/cron.daily/00logwatch
+    regexp='^/usr/sbin/logwatch --output mail'
+    line='/usr/sbin/logwatch --output mail --mailto {{ logwatch_email }} --detail {{ logwatch_detail }}'
+    state=present
+
+- name: Install checkrootkit
+  apt:
+    pkg=chkrootkit
+    state=latest
+
+- name: Activate checkrootkit for daily check
+  lineinfile:
+    dest=/etc/chkrootkit.conf
+    regexp={{ item.key }}
+    line={{ item.value }}
+    state=present
+  with_items:
+    - { key: '^RUN_DAILY', value: 'RUN_DAILY=\"true\"' }
+    - { key: '^DIFF_MODE', value: 'DIFF_MODE=\"true\"' }

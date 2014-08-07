@@ -1,0 +1,8 @@
+[program:redis_commander]
+command=redis-commander --redis-port={{ redis_commander.redis.port }} --redis-host={{ redis_commander.redis.host }} --redis-password={{ redis_commander.redis.password }} --port={{ redis_commander.port }} --http-auth-username={{ redis_commander.http_auth.username }} --http-auth-password={{ redis_commander.http_auth.password }}
+
+stderr_logfile = /var/log/supervisord/redis-commander-stderr.log
+stdout_logfile = /var/log/supervisord/redis-commander-stdout.log
+
+autostart=true
+autorestart=true

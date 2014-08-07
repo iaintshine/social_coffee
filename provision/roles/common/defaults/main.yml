@@ -1,0 +1,19 @@
+---
+firewall_enabled: true
+logwatch_email: boguslaw.mista@realitypump.com
+logwatch_detail: high
+
+## Supervisor related
+
+supervisor_home: '/etc/supervisor'
+supervisor_config: '{{ supervisor_home }}/supervisord.conf'
+supervisor_config_dir: '{{ supervisor_home }}/conf.d'
+
+supervisor_log: '/var/log/supervisord.log'
+supervisor_log_dir: '/var/log/supervisord'
+
+supervisor_http_host: 0.0.0.0
+supervisor_http_port: 9001
+supervisor_http_auth:
+  username: secret
+  password: supersecret

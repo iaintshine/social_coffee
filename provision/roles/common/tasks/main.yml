@@ -1,0 +1,15 @@
+---
+- include: bootstrap.yml
+  tags:
+    - common
+    - bootstrap
+
+- include: python.yml
+  tags:
+    - common
+    - python
+
+- include: supervisord.yml
+  tags:
+    - common
+    - supervisor

@@ -1,0 +1,11 @@
+---
+redis_commander:
+  redis:
+    host: localhost
+    port: 6379
+    password: supersecret
+
+  port: 9002
+  http_auth:
+    username: secret
+    password: supersecret

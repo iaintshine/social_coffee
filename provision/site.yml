@@ -1,0 +1,30 @@
+---
+# The main playbook to deploy the site
+
+- name: Configure all servers with common behaviour 
+  hosts: all 
+  roles:
+    - common
+  tags:
+    - common
+
+- name: Configure the master redis server
+  hosts: redis-master
+  roles:
+    - redis
+  tags:
+    - redis-master
+
+- name: Configure redis commander dashboard
+  hosts: redis-commander
+  roles:
+    - nodejs
+    - redis-commander 
+  tags:
+    - redis-commander
+
+- name: Configure webapp server
+  hosts: webapp
+  roles:
+    - nodejs
+    - webapp

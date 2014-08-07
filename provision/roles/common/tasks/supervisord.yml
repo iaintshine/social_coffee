@@ -1,0 +1,60 @@
+---
+- name: Install supervisor
+  pip: name=supervisor state=present
+
+- name: Create supervisor required directories
+  file:
+    path={{ item }}
+    state=directory
+    owner=deploy
+  with_items:
+    - '{{ supervisor_home }}'
+    - '{{ supervisor_config_dir }}'
+
+- name: Create supervisor configuration 
+  template:
+    src=supervisord.conf.j2
+    dest={{ supervisor_config }}
+
+- name: Create link to supervisor's configuration file at /etc/supervisord.conf (to prevent specifying configuration file explicitly) 
+  file:
+    src={{ supervisor_config }}
+    dest=/etc/supervisord.conf
+    state=link
+
+- name: Create supervisord init script
+  template: 
+    src=supervisord.sh
+    dest=/etc/init.d/supervisord
+    mode=0755
+
+- name: Create supervisor's http interface configuration
+  template:
+    src='supervisor-http.conf.j2'
+    dest='{{ supervisor_config_dir }}/supervisor-http.conf'
+    mode=754
+
+- name: Create supervisor's log file (prevent permission denied error)
+  file:
+    path={{ supervisor_log }}
+    state=touch
+    owner=deploy
+    group=deploy
+    mode=0755
+
+- name: Create supervisor's log directory (prevent permission denied error)
+  file:
+    path={{ supervisor_log_dir }}
+    state=directory
+    owner=deploy
+    group=deploy
+    mode=0755
+
+- name: Allow supervisor's http interface port {{ supervisor_http_port }} on firewall
+  action: shell ufw allow {{ supervisor_http_port }}
+
+- name: Start supervisord service and have it run during system startup
+  service:
+    name=supervisord
+    state=started
+    enabled=yes

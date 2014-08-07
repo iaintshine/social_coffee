@@ -1,0 +1,4 @@
+---
+- include: redis-commander.yml
+  tags:
+    - redis-commander

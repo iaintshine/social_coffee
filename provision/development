@@ -1,0 +1,11 @@
+[all]
+srv01.platform.com
+
+[redis-master]
+srv01.platform.com
+
+[redis-commander]
+srv01.platform.com
+
+[webapp]
+srv01.platform.com
