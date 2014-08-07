@@ -31,19 +31,29 @@ class Completer
 
         [suggestions, line_part]
 
+class Command
+    constructor: (context) ->
+        @context = context
+
+    execute: (commands) ->
+        console.log commands 
+
+
+class QuitCommand extends Command 
+
+    execute: (commands) ->
+        console.log "bye bye ..."
+        @context.close()
+
+class ListFriendsCommand extends Command
+
+class CreateFriendshipCommand extends Command 
+
+class RemoveFriendshipCommand extends Command 
+
 class CLI
     constructor: ->
         @completer = new Completer
-
-    handle_friends: (commands) ->
-        console.log commands
-
-    handle_friendship: (commands) ->
-        console.log commands
-
-    handle_quit: ->
-        console.log "bye bye ..."
-        @cmd_interface.close()
 
     start: (args) ->
  
@@ -84,11 +94,16 @@ class CLI
 
             switch commands[0]
                 when "friends"
-                    @handle_friends commands
+                    if commands.length > 1 and commands[1] == 'list' 
+                        new ListFriendsCommand(@cmd_interface).execute commands
+
                 when "friendship"
-                    @handle_friendship commands
+                    if commands.length > 1
+                        switch commands[1]
+                            when 'create' then new CreateFriendshipCommand(@cmd_interface).execute commands 
+                            when 'remove' then new RemoveFriendshipCommand(@cmd_interface).execute commands
                 when "quit"
-                    @handle_quit()
+                    new QuitCommand(@cmd_interface).execute commands
                 else
                     console.log 'command unknown' if line.trim().length > 0 
 
