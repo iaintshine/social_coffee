@@ -47,9 +47,29 @@ class QuitCommand extends Command
 
 class ListFriendsCommand extends Command
 
+    execute: (commands) ->
+        if commands.length == 3
+            id = parseInt commands[2]
+            Thrift.Client.client.get_friends id, (err, friends) ->
+                console.log friends
+
 class CreateFriendshipCommand extends Command 
 
+    execute: (commands) ->
+        if commands.length == 4
+            usera = parseInt commands[2]
+            userb = parseInt commands[3]
+            Thrift.Client.client.create_friendship usera, userb, (err, created) ->
+                console.log "friendship newely created: " + created
+
 class RemoveFriendshipCommand extends Command 
+
+    execute: (commands) ->
+        if commands.length == 4
+            usera = parseInt commands[2]
+            userb = parseInt commands[3]
+            Thrift.Client.client.remove_friendship usera, userb, (err, removed) ->
+                console.log "friendship just removed: " + removed
 
 class CLI
     constructor: ->
@@ -73,7 +93,7 @@ class CLI
 
         # -- Connect to thrift server --
 
-        @client = Thrift.Client.connect options.host, options.port
+        Thrift.Client.connect options.host, options.port
 
         # -- Create readline interface instance -- 
 

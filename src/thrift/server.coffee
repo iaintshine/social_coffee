@@ -32,7 +32,7 @@ class SocialCoffee.Thrift.Server
             logger.warn "Social Coffee Thfit server has been closed."
 
         @server.on 'error', (error) ->
-            logger.error "Error occurred during thrift server operation", error: err.toString()
+            logger.error "Error occurred during thrift server operation", error: error.toString()
 
         @server.listen options.port, ->
             logger.info "Social Coffee Thrift server is listening at port #{options.port}"
