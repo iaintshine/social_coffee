@@ -13,7 +13,7 @@ Commander
 # -- Configure run --
 
 options = {}
-options['port'] = Commander.port || 3000
+options['port'] = Commander.port || 9090
 
 # -- Run the service --
 

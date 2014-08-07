@@ -42,6 +42,9 @@ class Server
     # -- Main entry point --
 
     start: (options) ->
+        assert options, "This function requires options"
+        assert config.port and typeof config.port == 'number' and config.port >= 0, "port configuration is invalid or missing"
+        
         # -- Introduce --
 
         logger.info "Social Coffee v#{SocialCoffee.version} '#{SocialCoffee.codename}' orchestrating the show"
