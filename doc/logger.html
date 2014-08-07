@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="en"><head><title>logger</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="logger"><meta name="groc-project-path" content="src/logger.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/logger.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">Environment = </span><span class="nx">require</span> <span class="s">&#39;./environment&#39;</span>
+<span class="nv">KnownPath   = </span><span class="nx">require</span> <span class="s">&#39;./known_path&#39;</span>
+
+<span class="nv">path = </span><span class="nx">require</span> <span class="s">&#39;path&#39;</span>
+<span class="nv">fs   = </span><span class="nx">require</span> <span class="s">&#39;fs&#39;</span>
+
+<span class="nv">logger = </span><span class="nx">require</span> <span class="s">&#39;winston&#39;</span>
+
+<span class="k">class</span> <span class="nx">Logger</span>
+    <span class="vi">@output_path: </span><span class="nf">-&gt;</span>
+        <span class="nv">file_name = </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">Environment</span><span class="p">.</span><span class="nx">env</span><span class="si">}</span><span class="s">.log&quot;</span>
+        <span class="nx">path</span><span class="p">.</span><span class="nx">join</span> <span class="nx">KnownPath</span><span class="p">.</span><span class="nx">log</span><span class="p">,</span> <span class="nx">file_name</span>
+
+    <span class="vi">@prepare_fs: </span><span class="nf">-&gt;</span>
+        <span class="nx">fs</span><span class="p">.</span><span class="nx">mkdirSync</span><span class="p">(</span><span class="nx">KnownPath</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span> <span class="k">unless</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span><span class="p">(</span><span class="nx">KnownPath</span><span class="p">.</span><span class="nx">log</span><span class="p">)</span>
+
+    <span class="vi">@say_hi: </span><span class="nf">-&gt;</span>
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;You are running in </span><span class="si">#{</span><span class="nx">Environment</span><span class="p">.</span><span class="nx">env</span><span class="si">}</span><span class="s"> environment&quot;</span>
+
+    <span class="vi">@initialize: </span><span class="nf">-&gt;</span>
+        <span class="nx">@prepare_fs</span><span class="p">()</span>
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">clear</span><span class="p">()</span>
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">add</span> <span class="nx">logger</span><span class="p">.</span><span class="nx">transports</span><span class="p">.</span><span class="nx">Console</span><span class="p">,</span> <span class="nv">colorize: </span><span class="kc">true</span><span class="p">,</span> <span class="nv">label: </span><span class="nx">process</span><span class="p">.</span><span class="nx">pid</span> <span class="k">unless</span> <span class="nx">Environment</span><span class="p">.</span><span class="nx">production</span>
+        <span class="nv">options = </span>
+            <span class="nv">filename: </span><span class="nx">@output_path</span><span class="p">()</span>
+            <span class="nv">json: </span><span class="kc">false</span>
+            <span class="nv">timestamp: </span><span class="kc">false</span>
+            <span class="nv">label: </span><span class="nx">process</span><span class="p">.</span><span class="nx">pid</span>
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">add</span> <span class="nx">logger</span><span class="p">.</span><span class="nx">transports</span><span class="p">.</span><span class="nx">File</span><span class="p">,</span> <span class="nx">options</span>
+
+        <span class="nx">@say_hi</span><span class="p">()</span>
+
+<span class="nv">module.exports = </span><span class="nx">Logger</span></div></div></div></div></body></html>

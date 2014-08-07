@@ -1,0 +1,110 @@
+<!DOCTYPE html><html lang="en"><head><title>db</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="db"><meta name="groc-project-path" content="src/db.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/db.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">Environment = </span><span class="nx">require</span> <span class="s">&#39;./environment&#39;</span>
+<span class="nv">Module      = </span><span class="nx">require</span> <span class="s">&#39;./module&#39;</span>
+
+<span class="nv">assert = </span><span class="nx">require</span> <span class="s">&#39;assert&#39;</span>
+
+<span class="nv">logger = </span><span class="nx">require</span> <span class="s">&#39;winston&#39;</span>
+<span class="nv">redis  = </span><span class="nx">require</span> <span class="s">&#39;redis&#39;</span>
+
+<span class="nv">Hookable =</span>
+    <span class="nv">hooks: </span><span class="p">{}</span>
+    <span class="kc">on</span><span class="o">:</span> <span class="nf">(event, callback) -&gt;</span>
+        <span class="nx">assert</span> <span class="nx">event</span> <span class="o">and</span> <span class="k">typeof</span> <span class="nx">event</span> <span class="o">==</span> <span class="s">&#39;string&#39;</span><span class="p">,</span> <span class="s">&quot;event must be a string&quot;</span>
+        <span class="nx">assert</span> <span class="nx">callback</span> <span class="o">and</span> <span class="nx">callback</span> <span class="k">instanceof</span> <span class="nb">Function</span><span class="p">,</span> <span class="s">&quot;This function call requires a callback&quot;</span>
+        <span class="p">(</span><span class="nx">@hooks</span><span class="p">[</span><span class="nx">event</span><span class="p">]</span> <span class="o">?=</span> <span class="p">[]).</span><span class="nx">push</span> <span class="nx">callback</span>
+    <span class="nv">emit: </span><span class="nf">(event, args...) -&gt;</span>
+        <span class="nx">assert</span> <span class="nx">event</span> <span class="o">and</span> <span class="k">typeof</span> <span class="nx">event</span> <span class="o">==</span> <span class="s">&#39;string&#39;</span><span class="p">,</span> <span class="s">&quot;event must be a string&quot;</span>
+        <span class="k">if</span> <span class="nx">@hooks</span><span class="p">[</span><span class="nx">event</span><span class="p">]</span> 
+            <span class="nx">hook</span> <span class="nx">args</span> <span class="p">...</span> <span class="k">for</span> <span class="nx">hook</span> <span class="k">in</span> <span class="nx">@hooks</span><span class="p">[</span><span class="nx">event</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nx">Database</span> <span class="k">extends</span> <span class="nx">Module</span>
+   </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Attributes  -- </p></div></div><div class="code"><div class="wrapper">    
+    <span class="vi">@connected  = </span><span class="kc">false</span>
+    <span class="vi">@connection = </span><span class="kc">null</span>
+    <span class="vi">@config     = </span><span class="kc">null</span>
+    <span class="vi">@url        = </span><span class="kc">null</span>
+
+    <span class="vi">@current_db: </span><span class="o">=&gt;</span> <span class="k">if</span> <span class="nx">@config</span><span class="o">?</span> <span class="o">and</span> <span class="nx">@config</span><span class="p">.</span><span class="nx">database</span><span class="o">?</span> <span class="k">then</span> <span class="nx">@config</span><span class="p">.</span><span class="nx">database</span> <span class="k">else</span> <span class="mi">0</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Connection hooks --</p></div></div><div class="code"><div class="wrapper">    
+    <span class="nx">@extend</span> <span class="nx">Hookable</span>
+
+    <span class="vi">@after_connect: </span><span class="o">=&gt;</span> <span class="nx">@emit</span> <span class="s">&#39;connect&#39;</span><span class="p">,</span> <span class="nx">@connection</span>
+    
+    <span class="vi">@after_disconnect: </span><span class="o">=&gt;</span> <span class="nx">@emit</span> <span class="s">&#39;close&#39;</span><span class="p">,</span> <span class="nx">@connection</span> </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Sanatization --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@check_config: </span><span class="nf">(config) -&gt;</span>
+        <span class="nx">assert</span> <span class="nx">config</span><span class="p">,</span> <span class="s">&quot;This function requires config&quot;</span>
+        <span class="nx">assert</span> <span class="nx">config</span><span class="p">.</span><span class="nx">host</span> <span class="o">and</span> <span class="k">typeof</span> <span class="nx">config</span><span class="p">.</span><span class="nx">host</span> <span class="o">==</span> <span class="s">&#39;string&#39;</span><span class="p">,</span> <span class="s">&quot;host configuration is invalid or missing&quot;</span>
+        <span class="nx">assert</span> <span class="nx">config</span><span class="p">.</span><span class="nx">port</span> <span class="o">and</span> <span class="k">typeof</span> <span class="nx">config</span><span class="p">.</span><span class="nx">port</span> <span class="o">==</span> <span class="s">&#39;number&#39;</span> <span class="o">and</span> <span class="nx">config</span><span class="p">.</span><span class="nx">port</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;port configuration is invalid or missing&quot;</span>
+        <span class="k">if</span> <span class="nx">config</span><span class="p">.</span><span class="nx">database</span><span class="o">?</span>
+            <span class="nx">assert</span> <span class="k">typeof</span> <span class="nx">config</span><span class="p">.</span><span class="nx">database</span> <span class="o">==</span> <span class="s">&#39;number&#39;</span><span class="p">,</span> <span class="s">&quot;Redis database index must be a number&quot;</span>
+            <span class="nx">assert</span> <span class="nx">config</span><span class="p">.</span><span class="nx">database</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;Redis database index must be greater than or equal to 0&quot;</span> 
+
+        <span class="k">if</span> <span class="nx">config</span><span class="p">.</span><span class="nx">password</span><span class="o">?</span>
+            <span class="nx">assert</span> <span class="k">typeof</span> <span class="nx">config</span><span class="p">.</span><span class="nx">password</span> <span class="o">==</span> <span class="s">&#39;string&#39;</span><span class="p">,</span> <span class="s">&quot;Redis auth password must be a string&quot;</span>
+            <span class="nx">assert</span> <span class="nx">config</span><span class="p">.</span><span class="nx">password</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;Redis auth password must be of length greater than 0&quot;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Connection handling --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@connect: </span><span class="nf">(config, callback) =&gt;</span>
+        <span class="k">return</span> <span class="k">if</span> <span class="nx">@connected</span>
+
+        <span class="nx">@check_config</span> <span class="nx">config</span>
+
+        <span class="vi">@url = </span><span class="s">&quot;tcp://</span><span class="si">#{</span><span class="nx">config</span><span class="p">.</span><span class="nx">host</span><span class="si">}</span><span class="s">:</span><span class="si">#{</span><span class="nx">config</span><span class="p">.</span><span class="nx">port</span><span class="si">}</span><span class="s">&quot;</span>
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Connecting to redis instance at </span><span class="si">#{</span><span class="nx">@url</span><span class="si">}</span><span class="s"> ...&quot;</span>
+
+        <span class="nv">options = </span>
+            <span class="nv">parser: </span><span class="s">&#39;hiredis&#39;</span>
+
+        <span class="nx">options</span><span class="p">[</span><span class="s">&#39;auth_pass&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">config</span><span class="p">.</span><span class="nx">password</span> <span class="k">if</span> <span class="nx">config</span><span class="p">.</span><span class="nx">password</span><span class="o">?</span>
+
+        <span class="vi">@connection = </span><span class="nx">redis</span><span class="p">.</span><span class="nx">createClient</span> <span class="nx">config</span><span class="p">.</span><span class="nx">port</span><span class="p">,</span> <span class="nx">config</span><span class="p">.</span><span class="nx">host</span><span class="p">,</span> <span class="nx">options</span>
+        <span class="vi">@config     = </span><span class="nx">config</span>
+
+        <span class="vi">@connection.debug_mode = </span><span class="nx">Environment</span><span class="p">.</span><span class="nx">debug</span>
+        
+        <span class="nx">@connection</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;ready&#39;</span><span class="p">,</span> <span class="o">=&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Remote redis store version &#39;</span><span class="si">#{</span><span class="nx">@connection</span><span class="p">.</span><span class="nx">server_info</span><span class="p">.</span><span class="nx">redis_version</span><span class="si">}</span><span class="s">&#39; is up and running on &#39;</span><span class="si">#{</span><span class="nx">@connection</span><span class="p">.</span><span class="nx">server_info</span><span class="p">.</span><span class="nx">os</span><span class="si">}</span><span class="s">&#39; OS.&quot;</span>
+
+        <span class="nx">@connection</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;connect&#39;</span><span class="p">,</span> <span class="o">=&gt;</span>
+            <span class="vi">@connected = </span><span class="kc">true</span>
+
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Connection to redis store at </span><span class="si">#{</span><span class="nx">@url</span><span class="si">}</span><span class="s"> established&quot;</span>
+            
+            <span class="k">if</span> <span class="nx">config</span><span class="p">.</span><span class="nx">database</span><span class="o">?</span>
+                <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Changing redis db to </span><span class="si">#{</span><span class="nx">config</span><span class="p">.</span><span class="nx">database</span><span class="si">}</span><span class="s"> ...&quot;</span>
+                <span class="nx">@connection</span><span class="p">.</span><span class="nx">select</span> <span class="nx">config</span><span class="p">.</span><span class="nx">database</span><span class="p">,</span> <span class="nf">(err, response) -&gt;</span>
+                    <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Failed to change db to </span><span class="si">#{</span><span class="nx">config</span><span class="p">.</span><span class="nx">database</span><span class="si">}</span><span class="s"> due to errror. Falling back to db 0.&quot;</span><span class="p">,</span> <span class="nv">error: </span><span class="nx">err</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span> <span class="k">if</span> <span class="nx">err</span> 
+                    <span class="nx">@after_connect</span><span class="p">()</span>
+            <span class="k">else</span>
+                <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Connected to redis db 0&quot;</span>
+                <span class="nx">@after_connect</span><span class="p">()</span>
+
+        <span class="nx">@connection</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;end&#39;</span><span class="p">,</span> <span class="o">=&gt;</span>
+            <span class="vi">@connected = </span><span class="kc">false</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span> <span class="s">&quot;Connection to redis store at </span><span class="si">#{</span><span class="nx">@url</span><span class="si">}</span><span class="s"> closed.&quot;</span>
+
+            <span class="nx">@after_disconnect</span><span class="p">()</span>
+
+        <span class="nx">@connection</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;error&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Error occurred during redis operation&quot;</span><span class="p">,</span> <span class="nv">error: </span><span class="nx">err</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span> <span class="k">if</span> <span class="nx">err</span>
+
+        <span class="nx">@connection</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;drain&#39;</span><span class="p">,</span> <span class="o">=&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;TCP connection to redis store at </span><span class="si">#{</span><span class="nx">@url</span><span class="si">}</span><span class="s"> is now writable again.&quot;</span>
+
+
+    <span class="vi">@close: </span><span class="nf">(callback) =&gt;</span>
+        <span class="k">return</span> <span class="k">unless</span> <span class="nx">@connected</span>
+
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Closing connection to redis store at </span><span class="si">#{</span><span class="nx">@url</span><span class="si">}</span><span class="s"> ...&quot;</span>
+        <span class="nx">@connection</span><span class="p">.</span><span class="nx">quit</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Utility methods --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@drop: </span><span class="nf">(callback) =&gt;</span>
+        <span class="nx">assert</span> <span class="nx">@connected</span><span class="p">,</span> <span class="s">&quot;Connection to the redis store not established.&quot;</span>
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span> <span class="s">&quot;Dropping current db </span><span class="si">#{</span><span class="nx">@current_db</span><span class="p">()</span><span class="si">}</span><span class="s"> at </span><span class="si">#{</span><span class="nx">@url</span><span class="si">}</span><span class="s">&quot;</span>
+
+        <span class="nx">@connection</span><span class="p">.</span><span class="nx">flushdb</span> <span class="nf">(err, response) =&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Could not drop current db </span><span class="si">#{</span><span class="nx">@current_db</span><span class="p">()</span><span class="si">}</span><span class="s"> due to error&quot;</span><span class="p">,</span> <span class="nv">error: </span><span class="nx">err</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span> <span class="k">if</span> <span class="nx">err</span>
+            <span class="nx">callback</span> <span class="nx">err</span> <span class="k">if</span> <span class="nx">callback</span>
+
+    <span class="vi">@drop_all: </span><span class="nf">(callback) =&gt;</span>
+        <span class="nx">assert</span> <span class="nx">@connected</span><span class="p">,</span> <span class="s">&quot;Connection to the redis store not established&quot;</span>
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span> <span class="s">&quot;Droping all databases at </span><span class="si">#{</span><span class="nx">@url</span><span class="si">}</span><span class="s">.&quot;</span>
+
+        <span class="nx">@connection</span><span class="p">.</span><span class="nx">flushall</span> <span class="nf">(err, response) -&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Could not drop all database due to error&quot;</span><span class="p">,</span> <span class="nv">error: </span><span class="nx">err</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span> <span class="k">if</span> <span class="nx">err</span>
+            <span class="nx">callback</span> <span class="nx">err</span> <span class="k">if</span> <span class="nx">callback</span>
+
+<span class="nv">module.exports = </span><span class="nx">Database</span></div></div></div></div></body></html>

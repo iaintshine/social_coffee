@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="en"><head><title>thrift/handler</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="thrift/handler"><meta name="groc-project-path" content="src/thrift/handler.coffee"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/thrift/handler.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">ttypes      = </span><span class="nx">require</span> <span class="s">&#39;./social_coffee_service_types&#39;</span>
+<span class="nv">Friendship  = </span><span class="nx">require</span> <span class="s">&#39;../friendship&#39;</span> 
+
+<span class="k">class</span> <span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">Thrift</span><span class="p">.</span><span class="nx">Handler</span>
+    </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Thrift helpers --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@failure: </span><span class="nf">(error, result) -&gt;</span>
+        <span class="nv">ex = </span><span class="k">new</span> <span class="nx">ttypes</span><span class="p">.</span><span class="nx">SocialException</span><span class="p">()</span>
+        <span class="nv">ex.message = </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span>
+
+        <span class="nx">result</span> <span class="nx">ex</span>
+
+    <span class="vi">@success: </span><span class="nf">(value, result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">value</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Handler implementation --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@ping: </span><span class="nf">(result) =&gt;</span>
+        <span class="nx">result</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s">&quot;pong&quot;</span><span class="p">)</span>
+
+    <span class="vi">@get_friends: </span><span class="nf">(id, result) =&gt;</span>
+        <span class="nx">Friendship</span><span class="p">.</span><span class="nx">select</span> <span class="nx">id</span><span class="p">,</span> <span class="nf">(error, friends) =&gt;</span>
+            <span class="k">if</span> <span class="nx">error</span>
+                <span class="nx">@failure</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">result</span>
+            <span class="k">else</span>
+                <span class="nx">@success</span> <span class="nx">friends</span><span class="p">,</span> <span class="nx">result</span>
+
+
+    <span class="vi">@create_friendship: </span><span class="nf">(usera, userb, result) =&gt;</span>
+        <span class="nx">Friendship</span><span class="p">.</span><span class="nx">create</span> <span class="nx">usera</span><span class="p">,</span> <span class="nx">userb</span><span class="p">,</span> <span class="nf">(error, created) =&gt;</span>
+            <span class="k">if</span> <span class="nx">error</span>
+                <span class="nx">@failure</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">result</span>
+            <span class="k">else</span>
+                <span class="nx">@success</span> <span class="nx">created</span><span class="p">,</span> <span class="nx">result</span>
+
+    <span class="vi">@remove_friendship: </span><span class="nf">(usera, userb, result) =&gt;</span>
+        <span class="nx">Friendship</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">usera</span><span class="p">,</span> <span class="nx">userb</span><span class="p">,</span> <span class="nf">(error, removed) =&gt;</span>
+            <span class="k">if</span> <span class="nx">error</span>
+                <span class="nx">@failure</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">result</span>
+            <span class="k">else</span>
+                <span class="nx">@success</span> <span class="nx">removed</span><span class="p">,</span> <span class="nx">result</span>
+
+<span class="nv">exports.Handler = </span><span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">Thrift</span><span class="p">.</span><span class="nx">Handler</span> </div></div></div></div></body></html>

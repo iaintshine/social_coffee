@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en"><head><title>config</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="config"><meta name="groc-project-path" content="src/config.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/config.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">Environment = </span><span class="nx">require</span> <span class="s">&#39;./environment&#39;</span>
+<span class="nv">KnownPath   = </span><span class="nx">require</span> <span class="s">&#39;./known_path&#39;</span>
+
+<span class="nv">path    = </span><span class="nx">require</span> <span class="s">&#39;path&#39;</span>
+<span class="nv">fs      = </span><span class="nx">require</span> <span class="s">&#39;fs&#39;</span>
+<span class="nv">assert  = </span><span class="nx">require</span> <span class="s">&#39;assert&#39;</span>
+
+<span class="nv">yaml    = </span><span class="nx">require</span> <span class="s">&#39;js-yaml&#39;</span>
+<span class="nv">logger  = </span><span class="nx">require</span> <span class="s">&#39;winston&#39;</span>
+
+<span class="k">class</span> <span class="nx">Config</span>
+    <span class="vi">@query_files: </span><span class="nf">-&gt;</span>
+        <span class="nv">all_file_names = </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readdirSync</span> <span class="nx">KnownPath</span><span class="p">.</span><span class="nx">config</span>
+        <span class="vi">@file_names = </span><span class="nx">all_file_names</span><span class="p">.</span><span class="nx">filter</span> <span class="nf">(file_name) -&gt;</span> <span class="nx">file_name</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/\S*.yaml$/i</span><span class="p">)</span>
+
+    <span class="vi">@sanitize: </span><span class="nf">-&gt;</span>
+        <span class="nx">assert</span> <span class="nx">@file_names</span> <span class="o">and</span> <span class="nx">@file_names</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;No configuration files found&quot;</span>
+        <span class="nx">assert</span> <span class="s">&#39;db.yaml&#39;</span> <span class="k">in</span> <span class="nx">@file_names</span><span class="p">,</span> <span class="s">&quot;Database configuration file (db.yaml) not found&quot;</span>  
+
+    <span class="vi">@load_yaml: </span><span class="nf">(file_name) -&gt;</span>
+        <span class="nv">file_path = </span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span> <span class="nx">KnownPath</span><span class="p">.</span><span class="nx">config</span><span class="p">,</span> <span class="nx">file_name</span>
+        <span class="nv">yaml_content = </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span> <span class="nx">file_path</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span>
+
+        <span class="k">try</span>
+            <span class="nv">doc = </span><span class="nx">yaml</span><span class="p">.</span><span class="nx">safeLoad</span> <span class="nx">yaml_content</span> 
+        <span class="k">catch</span> <span class="nx">e</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="nx">e</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Failed to parse &#39;</span><span class="si">#{</span><span class="nx">file_name</span><span class="si">}</span><span class="s">&#39; file content&quot;</span>
+            <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">1</span>    
+
+        <span class="nx">assert</span> <span class="nx">doc</span> <span class="o">and</span> <span class="nx">doc</span><span class="p">[</span><span class="nx">Environment</span><span class="p">.</span><span class="nx">current</span><span class="p">],</span> <span class="s">&quot;Configuration file &#39;</span><span class="si">#{</span><span class="nx">file_name</span><span class="si">}</span><span class="s">&#39; requires &#39;</span><span class="si">#{</span><span class="nx">Environment</span><span class="p">.</span><span class="nx">current</span><span class="si">}</span><span class="s">&#39; environment configuration to be specified.&quot;</span> 
+        <span class="nx">doc</span> </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>here we announce (make it public) configuration for current running environment for every
+found configuration file. E.g. if we find db.yaml file one can ask Config.db.{attribute} for 
+attribute of database configuration. </p></div></div><div class="code"><div class="wrapper">    <span class="vi">@announce: </span><span class="nf">-&gt;</span>
+        <span class="k">for</span> <span class="nx">file_name</span> <span class="k">in</span> <span class="nx">@file_names</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Processing configuration file &#39;</span><span class="si">#{</span><span class="nx">file_name</span><span class="si">}</span><span class="s">&#39;&quot;</span>
+
+            <span class="nv">doc = </span><span class="nx">@load_yaml</span> <span class="nx">file_name</span>
+            <span class="nv">base_name = </span><span class="nx">path</span><span class="p">.</span><span class="nx">basename</span> <span class="nx">file_name</span><span class="p">,</span> <span class="s">&#39;.yaml&#39;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;One can access configuration of &#39;</span><span class="si">#{</span><span class="nx">file_name</span><span class="si">}</span><span class="s">&#39; with &#39;Config.</span><span class="si">#{</span><span class="nx">base_name</span><span class="si">}</span><span class="s">&#39; syntax.&quot;</span>
+
+            <span class="nx">@</span><span class="p">[</span><span class="nx">base_name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">doc</span><span class="p">[</span><span class="nx">Environment</span><span class="p">.</span><span class="nx">current</span><span class="p">]</span>
+
+    <span class="vi">@initialize: </span><span class="nf">-&gt;</span>
+        <span class="nx">@query_files</span><span class="p">()</span>
+        <span class="nx">@sanitize</span><span class="p">()</span>
+        <span class="nx">@announce</span><span class="p">()</span>
+
+        
+<span class="nv">module.exports = </span><span class="nx">Config</span>
+        </div></div></div></div></body></html>

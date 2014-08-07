@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><title>thrift/server</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="thrift/server"><meta name="groc-project-path" content="src/thrift/server.coffee"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/thrift/server.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">ttypes      = </span><span class="nx">require</span> <span class="s">&#39;./social_coffee_service_types&#39;</span>
+<span class="nv">Processor   = </span><span class="nx">require</span> <span class="s">&#39;./SocialCoffeeService&#39;</span>
+<span class="nv">Thrift     = </span><span class="nx">require</span> <span class="s">&#39;./handler&#39;</span>
+
+<span class="nv">assert  = </span><span class="nx">require</span> <span class="s">&#39;assert&#39;</span>
+
+<span class="nv">thrift  = </span><span class="nx">require</span> <span class="s">&#39;node-thrift&#39;</span>
+<span class="nv">logger  = </span><span class="nx">require</span> <span class="s">&#39;winston&#39;</span>
+
+<span class="k">class</span> <span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">Thrift</span><span class="p">.</span><span class="nx">Server</span>
+
+    <span class="nv">constructor: </span><span class="nf">-&gt;</span>
+        <span class="vi">@server = </span><span class="kc">null</span>
+
+    <span class="nv">start: </span><span class="nf">(options, callback) -&gt;</span>
+        <span class="nx">assert</span> <span class="nx">options</span><span class="p">,</span> <span class="s">&quot;This function call requires options&quot;</span>
+        <span class="nx">assert</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="o">?</span> <span class="o">and</span> <span class="k">typeof</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span> <span class="o">==</span> <span class="s">&#39;number&#39;</span> <span class="o">and</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;port value is invalid or missing&quot;</span>
+
+        <span class="nv">thrift_options = </span>
+            <span class="nv">transport: </span><span class="nx">thrift</span><span class="p">.</span><span class="nx">TFramedTransport</span>
+            <span class="nv">protocol: </span><span class="nx">thrift</span><span class="p">.</span><span class="nx">TBinaryProtocol</span>
+
+        <span class="vi">@server = </span><span class="nx">thrift</span><span class="p">.</span><span class="nx">createServer</span> <span class="nx">Processor</span><span class="p">,</span> <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Handler</span><span class="p">,</span> <span class="nx">thrift_options</span>
+
+        <span class="nx">@server</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;listening&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Social Coffee Thrift server socket has been bound&quot;</span>
+
+        <span class="nx">@server</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;connection&#39;</span><span class="p">,</span> <span class="nf">(socket) -&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;New client connection accepted from </span><span class="si">#{</span><span class="nx">socket</span><span class="p">.</span><span class="nx">remoteAddress</span><span class="si">}</span><span class="s">:</span><span class="si">#{</span><span class="nx">socket</span><span class="p">.</span><span class="nx">remotePort</span><span class="si">}</span><span class="s">&quot;</span>
+
+        <span class="nx">@server</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;close&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span> <span class="s">&quot;Social Coffee Thfit server has been closed.&quot;</span>
+
+        <span class="nx">@server</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;error&#39;</span><span class="p">,</span> <span class="nf">(error) -&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="nx">error</span><span class="p">.</span><span class="nx">stack</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Error occurred during thrift server operation&quot;</span><span class="p">,</span> <span class="nv">error: </span><span class="nx">error</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+
+        <span class="nx">@server</span><span class="p">.</span><span class="nx">listen</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="p">,</span> <span class="nf">-&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Social Coffee Thrift server is listening at port </span><span class="si">#{</span><span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="si">}</span><span class="s">&quot;</span>
+            <span class="nx">callback</span><span class="p">()</span> <span class="k">if</span> <span class="nx">callback</span><span class="o">?</span> <span class="o">and</span> <span class="k">typeof</span> <span class="nx">callback</span> <span class="o">==</span> <span class="s">&#39;function&#39;</span>
+
+    <span class="nv">stop: </span><span class="nf">(callback) -&gt;</span>
+        <span class="k">if</span> <span class="nx">@server</span><span class="o">?</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Closing Social Coffee Thrift server ...&quot;</span>
+            <span class="nx">@server</span><span class="p">.</span><span class="nx">close</span> <span class="nf">-&gt;</span>
+                <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Social Coffee thrift server is closed. No more connections will be accepted.&quot;</span>
+                <span class="nx">callback</span><span class="p">()</span> <span class="k">if</span> <span class="nx">callback</span><span class="o">?</span> <span class="o">and</span> <span class="k">typeof</span> <span class="nx">callback</span> <span class="o">==</span> <span class="s">&#39;function&#39;</span>
+                <span class="vi">@server = </span><span class="kc">null</span>
+
+<span class="nv">exports.Server = </span><span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">Thrift</span><span class="p">.</span><span class="nx">Server</span></div></div></div></div></body></html>

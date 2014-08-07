@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang="en"><head><title>server</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="server"><meta name="groc-project-path" content="src/server.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/server.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">fs     = </span><span class="nx">require</span> <span class="s">&#39;fs&#39;</span>
+<span class="nv">path   = </span><span class="nx">require</span> <span class="s">&#39;path&#39;</span>
+<span class="nv">logger = </span><span class="nx">require</span> <span class="s">&#39;winston&#39;</span>
+<span class="nv">assert = </span><span class="nx">require</span> <span class="s">&#39;assert&#39;</span>
+
+<span class="nv">SocialCoffee= </span><span class="nx">require</span> <span class="s">&#39;./version&#39;</span>
+<span class="nv">Environment = </span><span class="nx">require</span> <span class="s">&#39;./environment&#39;</span> 
+<span class="nv">KnownPath   = </span><span class="nx">require</span> <span class="s">&#39;./known_path&#39;</span>
+<span class="nv">Logger      = </span><span class="nx">require</span> <span class="s">&#39;./logger&#39;</span>
+<span class="nv">Config      = </span><span class="nx">require</span> <span class="s">&#39;./config&#39;</span>
+<span class="nv">Database    = </span><span class="nx">require</span> <span class="s">&#39;./db&#39;</span>
+<span class="nv">Thrift      = </span><span class="nx">require</span> <span class="s">&#39;./thrift/server&#39;</span>
+
+<span class="k">class</span> <span class="nx">Server</span>
+
+    <span class="nv">constructor: </span><span class="nf">-&gt;</span>
+        <span class="vi">@stop     = </span><span class="kc">false</span>
+        <span class="vi">@pid_path = </span><span class="nx">path</span><span class="p">.</span><span class="nx">join</span> <span class="nx">KnownPath</span><span class="p">.</span><span class="nx">pids</span><span class="p">,</span> <span class="s">&#39;server.pid&#39;</span>
+
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Server instance has just been constructed&quot;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- OS related --</p></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>server.pid</code> file is stored under tmp/pids directory</p></div></div><div class="code"><div class="wrapper">    <span class="nv">store_pid: </span><span class="nf">-&gt;</span>
+        <span class="nx">fs</span><span class="p">.</span><span class="nx">mkdirSync</span><span class="p">(</span><span class="nx">KnownPath</span><span class="p">.</span><span class="nx">tmp</span><span class="p">)</span> <span class="k">unless</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span><span class="p">(</span><span class="nx">KnownPath</span><span class="p">.</span><span class="nx">tmp</span><span class="p">)</span>
+        <span class="nx">fs</span><span class="p">.</span><span class="nx">mkdirSync</span><span class="p">(</span><span class="nx">KnownPath</span><span class="p">.</span><span class="nx">pids</span><span class="p">)</span> <span class="k">unless</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span><span class="p">(</span><span class="nx">KnownPath</span><span class="p">.</span><span class="nx">pids</span><span class="p">)</span>
+        
+        <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFileSync</span> <span class="nx">@pid_path</span><span class="p">,</span> <span class="nx">process</span><span class="p">.</span><span class="nx">pid</span>
+
+    <span class="nv">remove_pid: </span><span class="nf">-&gt;</span> 
+        <span class="nx">fs</span><span class="p">.</span><span class="nx">unlinkSync</span><span class="p">(</span><span class="nx">@pid_path</span><span class="p">)</span> <span class="k">if</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span><span class="p">(</span><span class="nx">@pid_path</span><span class="p">)</span>
+
+    <span class="nv">register_signal_handler: </span><span class="nf">-&gt;</span>
+        <span class="nx">process</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;SIGTERM&#39;</span><span class="p">,</span> <span class="o">=&gt;</span>
+            <span class="nx">@stop</span><span class="p">()</span>
+
+        <span class="nx">process</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;SIGINT&#39;</span><span class="p">,</span> <span class="o">=&gt;</span>
+            <span class="nx">@stop</span><span class="p">()</span>
+
+        <span class="nx">process</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;exit&#39;</span><span class="p">,</span> <span class="nf">(code) -&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Exiting </span><span class="si">#{</span><span class="k">if</span> <span class="nx">code</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">then</span> <span class="s">&quot;abnormally&quot;</span> <span class="k">else</span> <span class="s">&quot;normally&quot;</span><span class="si">}</span><span class="s"> with code </span><span class="si">#{</span><span class="nx">code</span><span class="si">}</span><span class="s">&quot;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Main entry point --</p></div></div><div class="code"><div class="wrapper">    <span class="nv">start: </span><span class="nf">(options) -&gt;</span>
+        <span class="nx">assert</span> <span class="nx">options</span><span class="p">,</span> <span class="s">&quot;This function requires options&quot;</span>
+        <span class="nx">assert</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="o">?</span> <span class="o">and</span> <span class="k">typeof</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span> <span class="o">==</span> <span class="s">&#39;number&#39;</span> <span class="o">and</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;port configuration is invalid or missing&quot;</span>
+        </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Introduce --</p></div></div><div class="code"><div class="wrapper">        <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Social Coffee v</span><span class="si">#{</span><span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">version</span><span class="si">}</span><span class="s"> &#39;</span><span class="si">#{</span><span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">codename</span><span class="si">}</span><span class="s">&#39; orchestrating the show&quot;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Pre Configure --</p></div></div><div class="code"><div class="wrapper">        <span class="nx">Logger</span><span class="p">.</span><span class="nx">initialize</span><span class="p">()</span>
+        <span class="nx">Config</span><span class="p">.</span><span class="nx">initialize</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Database --</p></div></div><div class="code"><div class="wrapper">        <span class="nx">Database</span><span class="p">.</span><span class="nx">connect</span> <span class="nx">Config</span><span class="p">.</span><span class="nx">db</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- We are up and running --</p></div></div><div class="code"><div class="wrapper">        <span class="nx">@store_pid</span><span class="p">()</span>
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;Process PID </span><span class="si">#{</span><span class="nx">process</span><span class="p">.</span><span class="nx">pid</span><span class="si">}</span><span class="s"> stored in </span><span class="si">#{</span><span class="nx">@pid_path</span><span class="si">}</span><span class="s">&quot;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Start thrift server --</p></div></div><div class="code"><div class="wrapper">        <span class="vi">@thrift_server = </span><span class="k">new</span> <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Server</span>
+        <span class="nx">@thrift_server</span><span class="p">.</span><span class="nx">start</span> <span class="nx">options</span><span class="p">,</span> <span class="nf">-&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;All things are set up!&quot;</span>
+
+    <span class="nv">stop: </span><span class="nf">-&gt;</span>
+        <span class="nx">@thrift_server</span><span class="p">.</span><span class="nx">stop</span> <span class="o">=&gt;</span>
+            <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span> <span class="s">&quot;We are shutting down!&quot;</span>
+
+            <span class="nx">Database</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span>
+
+            <span class="nx">@remove_pid</span><span class="p">()</span>
+
+
+<span class="nv">module.exports = </span><span class="nx">Server</span></div></div></div></div></body></html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="en"><head><title>cli</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="cli"><meta name="groc-project-path" content="src/cli.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/cli.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">Thrift = </span><span class="nx">require</span> <span class="s">&#39;./thrift/client&#39;</span>
+<span class="nv">SocialCoffee = </span><span class="nx">require</span> <span class="s">&#39;./version&#39;</span>
+
+<span class="nv">readline  = </span><span class="nx">require</span> <span class="s">&#39;readline&#39;</span>
+<span class="nv">Commander = </span><span class="nx">require</span> <span class="s">&#39;commander&#39;</span>
+
+<span class="k">class</span> <span class="nx">Completer</span>
+
+    <span class="nv">COMPLETIONS = </span>
+        <span class="nv">friends: </span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
+        <span class="nv">friendship: </span><span class="p">[</span><span class="s">&#39;create&#39;</span><span class="p">,</span> <span class="s">&#39;remove&#39;</span><span class="p">]</span>
+        <span class="nv">quit: </span><span class="p">[]</span>
+        <span class="nv">ping: </span><span class="p">[]</span>
+    
+    <span class="nv">complete: </span><span class="nf">(line) -&gt;</span>
+        <span class="nv">commands = </span><span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">().</span><span class="nx">split</span> <span class="sr">/\s+/i</span>
+        
+        <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="nx">COMPLETIONS</span><span class="p">[</span><span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="nv">hits = </span><span class="nx">COMPLETIONS</span><span class="p">[</span><span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]].</span><span class="nx">filter</span> <span class="nf">(c) -&gt;</span> <span class="nx">c</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">commands</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="nv">suggestions = </span><span class="k">if</span> <span class="nx">hits</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">then</span> <span class="nx">hits</span> <span class="k">else</span> <span class="nx">COMPLETIONS</span><span class="p">[</span><span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="k">else</span> 
+                <span class="nv">suggestions = </span><span class="p">[]</span>
+            <span class="nv">line_part = </span><span class="nx">commands</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> 
+        <span class="k">else</span> <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">and</span> <span class="nx">line</span><span class="p">[</span><span class="nx">line</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39; &#39;</span>
+            <span class="nv">suggestions = </span><span class="k">if</span> <span class="nx">COMPLETIONS</span><span class="p">[</span><span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">then</span> <span class="nx">COMPLETIONS</span><span class="p">[</span><span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="nv">line_part = </span><span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="nv">hits = </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">COMPLETIONS</span><span class="p">).</span><span class="nx">filter</span> <span class="nf">(c) -&gt;</span> <span class="nx">c</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="nv">suggestions = </span><span class="k">if</span> <span class="nx">hits</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">then</span> <span class="nx">hits</span> <span class="k">else</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">COMPLETIONS</span><span class="p">)</span>
+            <span class="nv">line_part = </span><span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="p">[</span><span class="nx">suggestions</span><span class="p">,</span> <span class="nx">line_part</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nx">Command</span>
+    <span class="nv">constructor: </span><span class="nf">(context) -&gt;</span>
+        <span class="vi">@context = </span><span class="nx">context</span>
+
+    <span class="nv">prompt: </span><span class="nf">-&gt;</span> <span class="nx">@context</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span>
+
+    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">commands</span> 
+
+
+<span class="k">class</span> <span class="nx">QuitCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
+
+    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;bye bye ...&quot;</span>
+        <span class="nx">@context</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nx">PingCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
+
+    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
+        <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">ping</span> <span class="nf">(err, result) =&gt;</span>
+            <span class="k">if</span> <span class="nx">err</span>
+                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span> 
+            <span class="k">else</span>
+                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">result</span>
+            <span class="nx">@prompt</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nx">ListFriendsCommand</span> <span class="k">extends</span> <span class="nx">Command</span>
+
+    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
+        <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">3</span>
+            <span class="nv">id = </span><span class="nb">parseInt</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">isNaN</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> 
+                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: argument must be a positive number&quot;</span>
+                <span class="k">return</span> <span class="nx">@prompt</span><span class="p">()</span>
+
+            <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">get_friends</span> <span class="nx">id</span><span class="p">,</span> <span class="nf">(err, friends) =&gt;</span>
+                <span class="k">if</span> <span class="nx">err</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span>
+                <span class="k">else</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">friends</span>
+                <span class="nx">@prompt</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nx">CreateFriendshipCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
+
+    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
+        <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">4</span>
+            <span class="nv">usera = </span><span class="nb">parseInt</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="nv">userb = </span><span class="nb">parseInt</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">isNaN</span><span class="p">(</span><span class="nx">usera</span><span class="p">)</span> <span class="o">or</span> <span class="nb">isNaN</span><span class="p">(</span><span class="nx">userb</span><span class="p">)</span>
+                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: both of arguments must be positive numbers&quot;</span>
+                <span class="k">return</span> <span class="nx">@prompt</span><span class="p">()</span>
+
+            <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">create_friendship</span> <span class="nx">usera</span><span class="p">,</span> <span class="nx">userb</span><span class="p">,</span> <span class="nf">(err, created) =&gt;</span>
+                <span class="k">if</span> <span class="nx">err</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span>
+                <span class="k">else</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;friendship newely created: &quot;</span> <span class="o">+</span> <span class="nx">created</span>
+                <span class="nx">@prompt</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nx">RemoveFriendshipCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
+
+    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
+        <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">4</span>
+            <span class="nv">usera = </span><span class="nb">parseInt</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="nv">userb = </span><span class="nb">parseInt</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">isNaN</span><span class="p">(</span><span class="nx">usera</span><span class="p">)</span> <span class="o">or</span> <span class="nb">isNaN</span><span class="p">(</span><span class="nx">userb</span><span class="p">)</span>
+                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: both of arguments must be positive numbers&quot;</span>
+                <span class="k">return</span> <span class="nx">@prompt</span><span class="p">()</span>
+
+            <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">remove_friendship</span> <span class="nx">usera</span><span class="p">,</span> <span class="nx">userb</span><span class="p">,</span> <span class="nf">(err, removed) =&gt;</span>
+                <span class="k">if</span> <span class="nx">err</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span>
+                <span class="k">else</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;friendship just removed: &quot;</span> <span class="o">+</span> <span class="nx">removed</span>
+                <span class="nx">@prompt</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nx">CLI</span>
+    <span class="nv">constructor: </span><span class="nf">-&gt;</span>
+        <span class="vi">@completer = </span><span class="k">new</span> <span class="nx">Completer</span>
+
+    <span class="nv">start: </span><span class="nf">(args) -&gt;</span>
+ </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Parse command line arguments --</p></div></div><div class="code"><div class="wrapper">        
+        <span class="nx">Commander</span>
+            <span class="p">.</span><span class="nx">version</span><span class="p">(</span><span class="s">&quot;Social Coffee v</span><span class="si">#{</span><span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">version</span><span class="si">}</span><span class="s"> &#39;</span><span class="si">#{</span><span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">codename</span><span class="si">}</span><span class="s">&#39;&quot;</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">option</span><span class="p">(</span><span class="s">&#39;-p, --port &lt;n&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;Port number&#39;</span><span class="p">,</span> <span class="nb">parseInt</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">option</span><span class="p">(</span><span class="s">&#39;-h, --host [host]&#39;</span><span class="p">,</span> <span class="s">&#39;Host number&#39;</span><span class="p">,</span> <span class="s">&#39;localhost&#39;</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Configure run --</p></div></div><div class="code"><div class="wrapper">        <span class="nv">options = </span><span class="p">{}</span>
+        <span class="nx">options</span><span class="p">[</span><span class="s">&#39;host&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">Commander</span><span class="p">.</span><span class="nx">host</span> <span class="o">||</span> <span class="s">&#39;localhost&#39;</span>
+        <span class="nx">options</span><span class="p">[</span><span class="s">&#39;port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">Commander</span><span class="p">.</span><span class="nx">port</span> <span class="o">||</span> <span class="mi">9090</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Create readline interface instance -- </p></div></div><div class="code"><div class="wrapper">        <span class="nv">cmd_options = </span>
+            <span class="nv">input: </span><span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span>
+            <span class="nv">output: </span><span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span>
+            <span class="nv">completer: </span><span class="nx">@completer</span><span class="p">.</span><span class="nx">complete</span>
+
+        <span class="vi">@cmd_interface = </span><span class="nx">readline</span><span class="p">.</span><span class="nx">createInterface</span> <span class="nx">cmd_options</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Set the prompt --</p></div></div><div class="code"><div class="wrapper">        <span class="nv">prompt = </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">options</span><span class="p">.</span><span class="nx">host</span><span class="si">}</span><span class="s">:</span><span class="si">#{</span><span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="si">}</span><span class="s">&gt;&quot;</span>
+        <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">setPrompt</span> <span class="nx">prompt</span><span class="p">,</span> <span class="nx">prompt</span><span class="p">.</span><span class="nx">length</span>
+
+        <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;SIGINT&#39;</span><span class="p">,</span> <span class="o">=&gt;</span>
+            <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">question</span> <span class="s">&#39;Are you sure you want to exit? [yes|no] &#39;</span><span class="p">,</span> <span class="nf">(answer) =&gt;</span>
+                <span class="k">new</span> <span class="nx">QuitCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span><span class="p">()</span> <span class="k">if</span> <span class="nx">answer</span><span class="p">.</span><span class="nx">match</span> <span class="sr">/^y(es)?$/i</span>
+                <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span>
+
+        <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;line&#39;</span><span class="p">,</span> <span class="nf">(line) =&gt;</span>
+            <span class="nv">commands = </span><span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">().</span><span class="nx">split</span> <span class="sr">/\s+/i</span>
+
+            <span class="k">switch</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">when</span> <span class="s">&quot;friends&quot;</span>
+                    <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">and</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;list&#39;</span> 
+                        <span class="k">new</span> <span class="nx">ListFriendsCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
+
+                <span class="k">when</span> <span class="s">&quot;friendship&quot;</span>
+                    <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span>
+                        <span class="k">switch</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="k">when</span> <span class="s">&#39;create&#39;</span> <span class="k">then</span> <span class="k">new</span> <span class="nx">CreateFriendshipCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span> 
+                            <span class="k">when</span> <span class="s">&#39;remove&#39;</span> <span class="k">then</span> <span class="k">new</span> <span class="nx">RemoveFriendshipCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
+                <span class="k">when</span> <span class="s">&quot;ping&quot;</span>
+                    <span class="k">new</span> <span class="nx">PingCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
+                <span class="k">when</span> <span class="s">&quot;quit&quot;</span>
+                    <span class="k">new</span> <span class="nx">QuitCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
+                <span class="k">else</span>
+                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;command unknown&#39;</span> <span class="k">if</span> <span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">().</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span> 
+                    <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span>
+
+        <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;close&#39;</span><span class="p">,</span> <span class="o">=&gt;</span>
+            <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span>
+            <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">0</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Connect to thrift server --</p></div></div><div class="code"><div class="wrapper">        <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">connect</span> <span class="nx">options</span><span class="p">.</span><span class="nx">host</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">port</span><span class="p">,</span> <span class="o">=&gt;</span>
+            <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Wait for user input -- </p></div></div><div class="code"><div class="wrapper">        <span class="nx">@cmd_interface</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span>
+
+<span class="nv">module.exports = </span><span class="nx">CLI</span></div></div></div></div></body></html>

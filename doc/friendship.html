@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="en"><head><title>friendship</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="friendship"><meta name="groc-project-path" content="src/friendship.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/friendship.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">Database = </span><span class="nx">require</span> <span class="s">&#39;./db&#39;</span>
+
+<span class="nv">logger   = </span><span class="nx">require</span> <span class="s">&#39;winston&#39;</span>
+
+<span class="k">class</span> <span class="nx">Friendship</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Helpers --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@connect: </span><span class="nf">-&gt;</span> <span class="nx">Database</span><span class="p">.</span><span class="nx">connection</span>
+
+    <span class="vi">@key: </span><span class="nf">(id) -&gt;</span> <span class="s">&quot;user:</span><span class="si">#{</span><span class="nx">id</span><span class="si">}</span><span class="s">:friends&quot;</span>
+
+    <span class="vi">@sanitize_argument: </span><span class="nf">(arg) -&gt;</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nx">TypeError</span> <span class="s">&quot;function argument must not be null&quot;</span> <span class="k">unless</span> <span class="nx">arg</span><span class="o">?</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nx">TypeError</span> <span class="s">&quot;function argument is not a number&quot;</span> <span class="k">unless</span> <span class="k">typeof</span> <span class="nx">arg</span> <span class="o">==</span> <span class="s">&#39;number&#39;</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nx">RangeError</span> <span class="s">&quot;function argumenst is not a positive number&quot;</span> <span class="k">if</span> <span class="nx">arg</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="kc">null</span>          </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Insert/update/remove --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@create: </span><span class="nf">(usera, userb, callback) =&gt;</span>
+        <span class="nv">error = </span><span class="nx">@sanitize_argument</span> <span class="nx">usera</span>
+        <span class="k">if</span> <span class="nx">error</span>
+            <span class="nx">callback</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">callback</span>
+            <span class="k">return</span> 
+
+        <span class="nv">error = </span><span class="nx">@sanitize_argument</span> <span class="nx">userb</span>
+        <span class="k">if</span> <span class="nx">error</span> 
+            <span class="nx">callback</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">callback</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="nx">usera</span> <span class="o">==</span> <span class="nx">userb</span> 
+            <span class="nx">callback</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;function arguments must not be equal&quot;</span>
+            <span class="k">return</span>
+
+        <span class="nx">@connect</span><span class="p">().</span><span class="nx">multi</span><span class="p">()</span>
+            <span class="p">.</span><span class="nx">sadd</span><span class="p">(</span><span class="nx">@key</span><span class="p">(</span><span class="nx">usera</span><span class="p">),</span> <span class="nx">userb</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">sadd</span><span class="p">(</span><span class="nx">@key</span><span class="p">(</span><span class="nx">userb</span><span class="p">),</span> <span class="nx">usera</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">exec</span> <span class="nf">(err, replies) -&gt;</span>
+                <span class="k">if</span> <span class="nx">err</span><span class="o">?</span> <span class="o">and</span> <span class="nx">err</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Friendship</span><span class="err">#</span><span class="s">create failed with some errors&quot;</span><span class="p">,</span> <span class="nv">errors: </span><span class="nx">err</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+                    <span class="nx">callback</span> <span class="nx">err</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nx">callback</span>
+                    <span class="k">return</span>
+
+                <span class="k">if</span> <span class="nx">callback</span>
+                    <span class="nv">created = </span><span class="nx">replies</span> <span class="o">and</span> <span class="nx">replies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">created</span>
+
+
+    <span class="vi">@remove: </span><span class="nf">(usera, userb, callback) -&gt;</span>
+        <span class="nv">error = </span><span class="nx">@sanitize_argument</span> <span class="nx">usera</span>
+        <span class="k">if</span> <span class="nx">error</span>
+            <span class="nx">callback</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">callback</span>
+            <span class="k">return</span> 
+
+        <span class="nv">error = </span><span class="nx">@sanitize_argument</span> <span class="nx">userb</span>
+        <span class="k">if</span> <span class="nx">error</span> 
+            <span class="nx">callback</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">callback</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="nx">usera</span> <span class="o">==</span> <span class="nx">userb</span> 
+            <span class="nx">callback</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;function arguments must not be equal&quot;</span>
+            <span class="k">return</span>
+
+        <span class="nx">@connect</span><span class="p">().</span><span class="nx">multi</span><span class="p">()</span>
+            <span class="p">.</span><span class="nx">srem</span><span class="p">(</span><span class="nx">@key</span><span class="p">(</span><span class="nx">usera</span><span class="p">),</span> <span class="nx">userb</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">srem</span><span class="p">(</span><span class="nx">@key</span><span class="p">(</span><span class="nx">userb</span><span class="p">),</span> <span class="nx">usera</span><span class="p">)</span>
+            <span class="p">.</span><span class="nx">exec</span> <span class="nf">(err, replies) -&gt;</span>
+                <span class="k">if</span> <span class="nx">err</span><span class="o">?</span> <span class="o">and</span> <span class="nx">err</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Friendship</span><span class="err">#</span><span class="s">remove failed with some errors&quot;</span><span class="p">,</span> <span class="nv">errors: </span><span class="nx">err</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+                    <span class="nx">callback</span> <span class="nx">err</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nx">callback</span>
+                    <span class="k">return</span>
+
+                <span class="k">if</span> <span class="nx">callback</span>
+                    <span class="nv">removed = </span><span class="nx">replies</span> <span class="o">and</span> <span class="nx">replies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">removed</span>
+    </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Finders --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@select: </span><span class="nf">(user, callback) -&gt;</span> 
+        <span class="nv">error = </span><span class="nx">@sanitize_argument</span> <span class="nx">user</span>
+        <span class="k">if</span> <span class="nx">error</span>
+            <span class="nx">callback</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">callback</span>
+            <span class="k">return</span> 
+        
+        <span class="k">return</span> <span class="k">unless</span> <span class="nx">callback</span> 
+
+        <span class="nx">@connect</span><span class="p">().</span><span class="nx">smembers</span> <span class="nx">@key</span><span class="p">(</span><span class="nx">user</span><span class="p">),</span> <span class="nf">(err, values) -&gt;</span>
+            <span class="k">if</span> <span class="nx">err</span> 
+                <span class="nx">logger</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Friendship</span><span class="err">#</span><span class="s">select failed due to error&quot;</span><span class="p">,</span> <span class="nv">error: </span><span class="nx">err</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+                <span class="nx">callback</span> <span class="nx">err</span>
+            <span class="k">else</span> 
+                <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">values</span>
+
+<span class="nv">module.exports = </span><span class="nx">Friendship</span></div></div></div></div></body></html>

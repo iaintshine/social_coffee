@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="en"><head><title>index</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="index"><meta name="groc-project-path" content="README.md"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">README.md</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p>Social graph Thrift's service</p>
+
+<h1 id="installation">Installation</h1>
+
+<pre><code>npm install
+</code></pre>
+
+<h1 id="run-tests">Run tests</h1>
+
+<pre><code>npm test
+</code></pre>
+
+<h2 id="requirements">Requirements</h2>
+
+<ul>
+<li><p>Globally installed Coffeescript compiler</p>
+
+<p>[sudo] npm install -g coffeescript</p></li>
+<li><p>Globally installed Cake</p>
+
+<p>[sudo] npm install -g cake</p></li>
+<li><p>Query friends</p>
+
+<p>SELECT * FROM friendlist WHERE owner = uid</p></li>
+<li><p>Create friendship</p>
+
+<p>INSERT INTO friendship(UID1, UID2) VALUES (1, 2)</p></li>
+<li><p>Remove friendship</p>
+
+<p>DELETE FROM friendship WHERE UID1 == 1 AND UID2 == 2</p></li>
+</ul></div></div></div></div></body></html>
