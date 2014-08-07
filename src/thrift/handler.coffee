@@ -6,7 +6,10 @@ class SocialCoffee.Thrift.Handler
     # -- Thrift helpers --
 
     @failure: (error, result) ->
-        result new ttypes.SocialException(error.message)
+        ex = new ttypes.SocialException()
+        ex.message = error.message
+
+        result ex
 
     @success: (value, result) ->
         result null, value
@@ -14,7 +17,7 @@ class SocialCoffee.Thrift.Handler
     # -- Handler implementation --
 
     @ping: (result) =>
-       result(null, "pong")
+        result(null, "pong")
 
     @get_friends: (id, result) =>
         Friendship.select id, (error, friends) =>
@@ -38,4 +41,4 @@ class SocialCoffee.Thrift.Handler
             else
                 @success removed, result
 
-module.exports.Handler = SocialCoffee.Thrift.Handler 
+exports.Handler = SocialCoffee.Thrift.Handler 

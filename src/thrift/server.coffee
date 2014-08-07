@@ -1,6 +1,6 @@
 ttypes      = require './social_coffee_service_types'
 Processor   = require './SocialCoffeeService'
-Handler     = require './handler'
+Thrift     = require './handler'
 
 assert  = require 'assert'
 
@@ -20,7 +20,7 @@ class SocialCoffee.Thrift.Server
             transport: thrift.TFramedTransport
             protocol: thrift.TBinaryProtocol
 
-        @server = thrift.createServer Processor, Handler, thrift_options
+        @server = thrift.createServer Processor, Thrift.Handler, thrift_options
 
         @server.on 'listening', ->
             logger.info "Social Coffee Thrift server socket has been bound"
@@ -32,6 +32,7 @@ class SocialCoffee.Thrift.Server
             logger.warn "Social Coffee Thfit server has been closed."
 
         @server.on 'error', (error) ->
+            logger.error error.stack
             logger.error "Error occurred during thrift server operation", error: error.toString()
 
         @server.listen options.port, ->

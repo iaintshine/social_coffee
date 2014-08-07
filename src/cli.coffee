@@ -36,6 +36,8 @@ class Command
     constructor: (context) ->
         @context = context
 
+    prompt: -> @context.prompt()
+
     execute: (commands) ->
         console.log commands 
 
@@ -49,17 +51,29 @@ class QuitCommand extends Command
 class PingCommand extends Command 
 
     execute: (commands) ->
-        Thrift.Client.client.ping (err, result) ->
-            console.log result
+        Thrift.Client.client.ping (err, result) =>
+            if err
+                console.log "error occurred: " + err.message 
+            else
+                console.log result
+            @prompt()
 
 class ListFriendsCommand extends Command
 
     execute: (commands) ->
         if commands.length == 3
             id = parseInt commands[2]
-            Thrift.Client.client.get_friends id, (err, friends) ->
-                console.log err
-                console.log friends
+
+            if isNaN(id) 
+                console.log "error occurred: argument must be a positive number"
+                return @prompt()
+
+            Thrift.Client.client.get_friends id, (err, friends) =>
+                if err
+                    console.log "error occurred: " + err.message
+                else
+                    console.log friends
+                @prompt()
 
 class CreateFriendshipCommand extends Command 
 
@@ -67,8 +81,17 @@ class CreateFriendshipCommand extends Command
         if commands.length == 4
             usera = parseInt commands[2]
             userb = parseInt commands[3]
-            Thrift.Client.client.create_friendship usera, userb, (err, created) ->
-                console.log "friendship newely created: " + created
+
+            if isNaN(usera) or isNaN(userb)
+                console.log "error occurred: both of arguments must be positive numbers"
+                return @prompt()
+
+            Thrift.Client.client.create_friendship usera, userb, (err, created) =>
+                if err
+                    console.log "error occurred: " + err.message
+                else
+                    console.log "friendship newely created: " + created
+                @prompt()
 
 class RemoveFriendshipCommand extends Command 
 
@@ -76,8 +99,17 @@ class RemoveFriendshipCommand extends Command
         if commands.length == 4
             usera = parseInt commands[2]
             userb = parseInt commands[3]
-            Thrift.Client.client.remove_friendship usera, userb, (err, removed) ->
-                console.log "friendship just removed: " + removed
+
+            if isNaN(usera) or isNaN(userb)
+                console.log "error occurred: both of arguments must be positive numbers"
+                return @prompt()
+
+            Thrift.Client.client.remove_friendship usera, userb, (err, removed) =>
+                if err
+                    console.log "error occurred: " + err.message
+                else
+                    console.log "friendship just removed: " + removed
+                @prompt()
 
 class CLI
     constructor: ->
@@ -98,10 +130,6 @@ class CLI
         options = {}
         options['host'] = Commander.host || 'localhost'
         options['port'] = Commander.port || 9090
-
-        # -- Connect to thrift server --
-
-        Thrift.Client.connect options.host, options.port
 
         # -- Create readline interface instance -- 
 
@@ -141,12 +169,16 @@ class CLI
                     new QuitCommand(@cmd_interface).execute commands
                 else
                     console.log 'command unknown' if line.trim().length > 0 
-
-            @cmd_interface.prompt()
+                    @cmd_interface.prompt()
 
         @cmd_interface.on 'close', =>
             Thrift.Client.close()
             process.exit 0
+
+         # -- Connect to thrift server --
+
+        Thrift.Client.connect options.host, options.port, =>
+            @cmd_interface.prompt()
 
         # -- Wait for user input -- 
 
