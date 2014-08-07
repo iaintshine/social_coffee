@@ -29,4 +29,4 @@ task 'generate:thrift', 'Generate thrift bindings', ->
     sys_command 'thrift --gen html -o doc/ thrift/social_coffee_service.thrift', 'Generating thrift html documentation ...'
 
     # generate nodejs bingins
-    sys_command 'thrift --gen js:node -o lib/thrift thrift/social_coffee_service.thrift', 'Generating nodejs bindings ...'
+    sys_command 'thrift --gen js:node -out lib/thrift thrift/social_coffee_service.thrift', 'Generating nodejs bindings ...'

@@ -15,7 +15,8 @@
         "js-yaml": "3.0.x",
         "commander": "2.2.0",
         "redis": "0.11.0",
-        "hiredis": "0.1.17"
+        "hiredis": "0.1.17",
+        "node-thrift": "1.0.0-dev"
     },
     "devDependencies": {
         "coffee-script": ">= 1.7.1",
