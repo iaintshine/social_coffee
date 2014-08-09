@@ -27,6 +27,10 @@ module SocialCoffee
             @client = Thrift::SocialCoffeeService::Client.new @protocol 
         end
 
+        def open? 
+            @framed_transport && @framed_transport.open?
+        end
+
         def open
             @framed_transport.open
 
