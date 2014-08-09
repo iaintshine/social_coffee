@@ -22,7 +22,7 @@ setup(
     author_email=EMAIL,
     packages=['socialcoffee', 'socialcoffee.test'],
     scripts=[],
-    url='https://github.com/iaintshine/social_coffee'
+    url='https://github.com/iaintshine/social_coffee',
     license='LICENSE.txt',
     description='Python client library for interaction with social coffee thrift service.',
     long_description=README + '\n\n' + CHANGES,

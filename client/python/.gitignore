@@ -1,0 +1,7 @@
+build/*
+dist/*
+SocialCoffee.egg-info/*
+*.pyc
+.coverage
+virtualenv/
+*.egg

@@ -1,7 +1,11 @@
+import os
 import sys
 import contextlib
 
-sys.path.append('gen-py')
+here = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(here, 'gen-py'))
+
+print(sys.path)
 
 from socialcoffee.thrift import SocialCoffeeService
 from socialcoffee.thrift.ttypes import *
