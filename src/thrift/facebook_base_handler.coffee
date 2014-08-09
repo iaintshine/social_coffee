@@ -43,6 +43,17 @@ class FacebookBase
     @getCpuProfile: (profileDurationInSec, result) ->
         result null, ""
 
+    # -- Performance counters helpers (not included in thrift definition) --
+
+    @resetCounter: (key) ->
+        @counters[key] = 0
+
+    @incrementCounter: (key) ->
+        @counters[key] = (if @counters[key]? then @counters[key] else 0) + 1
+
+    @deleteCounter: (key) ->
+        delete @counters[key]
+
     # -- Service options --
 
     @setOption: (key, value, result) ->
