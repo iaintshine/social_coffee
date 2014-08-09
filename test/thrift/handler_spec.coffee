@@ -1,11 +1,18 @@
 Database    = require '../../lib/db'
 Friendship  = require '../../lib/friendship'
+SocialCoffee= require '../../lib/version'
 Thrift      = require '../../lib/thrift/handler'
 ttypes      = require '../../lib/thrift/social_coffee_service_types'
 
-describe 'Trhfit.Handler', ->
+describe 'Thrift.Handler', ->
     user_a = 1
     user_b = 2
+
+    describe '#getVersion', ->
+        it 'should return current version', (done) ->
+            Thrift.Handler.getVersion (error, result) ->
+                result.should.equal SocialCoffee.version
+                done()
 
     describe '#ping', ->
         it 'should return pong string', (done) ->

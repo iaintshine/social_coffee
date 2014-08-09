@@ -1,7 +1,8 @@
 ttypes      = require './social_coffee_service_types'
+FacebookBase= require './facebook_base_handler'
 Friendship  = require '../friendship' 
 
-class SocialCoffee.Thrift.Handler
+class SocialCoffee.Thrift.Handler extends FacebookBase
     
     # -- Thrift helpers --
 
