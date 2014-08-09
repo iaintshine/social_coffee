@@ -67,7 +67,7 @@ class Client(object):
             if callable(method):
                 return method
             else:
-                raise AttributeError('%s has no moethod name %s' % (self.__client, name))
+                raise AttributeError('%s has no method named %s' % (self.__client, name))
 
 @contextlib.contextmanager
 def connect(host='localhost', port=9090):
