@@ -108,6 +108,16 @@ describe SocialCoffee::Client do
                 it 'should return true' do
                     expect(@client.create_friendship(user_a, user_b)).to eq(true)
                 end
+
+                it 'should add user b to user a friends circle' do
+                    @client.create_friendship(user_a, user_b)
+                    expect(@client.get_friends(user_a)).to include(user_b)
+                end
+
+                it 'should add user a to user b friends circle' do
+                    @client.create_friendship(user_a, user_b)
+                    expect(@client.get_friends(user_b)).to include(user_a)
+                end
             end
 
             describe 'users are already friends' do
@@ -127,5 +137,51 @@ describe SocialCoffee::Client do
     end
 
     describe :remove_friendship do
+        let(:user_a) { 1 }
+        let(:user_b) { 2 }
+
+        describe 'invalid calls' do
+            it 'should raise error if any argument is null' do
+                expect{ @client.remove_friendship nil, user_b }.to raise_error
+                expect{ @client.remove_friendship user_a, nil }.to raise_error
+            end
+
+            it 'should raise error if any argument has non positive integer value' do
+                expect{ @client.remove_friendship -user_a, user_b }.to raise_error
+                expect{ @client.remove_friendship user_a, -user_b }.to raise_error
+            end
+
+            it 'should raise error if both arguments are equal' do
+                expect{ @client.remove_friendship user_a, user_a }.to raise_error
+            end
+        end
+
+        describe 'valid calls' do
+            describe 'users are not friends' do
+                it 'should return false' do
+                    expect(@client.remove_friendship(user_a, user_b)).to eq(false)
+                end
+            end
+
+            describe 'users are already friends' do
+                before :each do 
+                    @client.create_friendship user_a, user_b
+                end
+
+                it 'should return true' do
+                    expect(@client.remove_friendship(user_a, user_b)).to eq(true)
+                end
+
+                it 'should remove user b from as circle' do
+                    @client.remove_friendship user_a, user_b
+                    expect(@client.get_friends(user_a)).not_to include(user_b)
+                end
+
+                it 'should remove user a from bs circle' do
+                    @client.remove_friendship user_a, user_b
+                    expect(@client.get_friends(user_b)).not_to include(user_a)
+                end
+            end
+        end
     end
 end 
