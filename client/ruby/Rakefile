@@ -1,0 +1,15 @@
+#!/usr/bin/env rake
+require "bundler/gem_tasks"
+
+desc 'Default: run rspec.'
+task default: :spec
+
+require "rspec/core/rake_task"
+RSpec::Core::RakeTask.new(:spec) do |task|
+    task.pattern = "spec/**/*_spec.rb"
+end
+
+desc 'Build the gem'
+task :build do
+    system "gem build social_coffee.gemspec"
+end

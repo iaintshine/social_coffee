@@ -32,9 +32,6 @@ task 'generate:thrift', 'Generate thrift bindings', ->
     sys_command 'thrift --gen js:node -I thrift/ -r -out lib/thrift thrift/social_coffee_service.thrift', 'Generating nodejs bindings ...'
 
     # generate client bindings
-    bindings = 
-        ruby: 'rb'
-        python: 'py'
+    sys_command "thrift --gen py -I thrift/ -r -o client/python thrift/social_coffee_service.thrift", "Generating python bindings ..."
 
-    for lang, gen of bindings
-        sys_command "thrift --gen #{gen} -I thrift/ -r -o client/#{lang} thrift/social_coffee_service.thrift", "Generating #{lang} bindings ..."
+    sys_command "thrift --gen rb -I thrift/ -r -o client/ruby/lib/social_coffee thrift/social_coffee_service.thrift", "Generating ruby bindings ..."
