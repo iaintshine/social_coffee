@@ -51,15 +51,15 @@ To run tests
 
 1. Make sure all gem's development dependencies are available
 
-    $ bundle install
+        $ bundle install
 
 2. Make sure social coffee thrift server is up and running on localhost on port `9090`
 
-    $ node lib/index.js
+        $ node lib/index.js
 
 3. Run tests
 
-    $ rspec spec
+        $ rspec spec
 
 ## Contributing
 
