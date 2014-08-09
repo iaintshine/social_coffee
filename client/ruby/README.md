@@ -18,13 +18,13 @@ There are two ways one can interact with the library.
 
 1. Using connection helper with explicit block parameter
 
-```ruby
-SocialCoffee.connect host, port do |client|
-    client.get_friends user_a # => [user_b]
-end
-```
-
-Notice that connection is cleaned up after the block.
+    ```ruby
+    SocialCoffee.connect host, port do |client|
+        client.get_friends user_a # => [user_b]
+    end
+    ```
+    
+    Notice that connection is cleaned up after the block.
 
 2. Interaction with `SocialCoffee::Client` instance
 
