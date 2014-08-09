@@ -1,1 +1,5 @@
-__all__ = ['client']
+from .client import (
+    ClientException,
+    Client,
+    connect
+)
