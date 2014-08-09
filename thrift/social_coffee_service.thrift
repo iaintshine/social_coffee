@@ -8,6 +8,10 @@ namespace js SocialCoffee.Thrift
 namespace rb SocialCoffee.Thrift
 namespace py socialcoffee.thrift
 
+//============================= Dependencies ==================================
+
+include "fb303.thrift" 
+
 //============================= Versioning ==================================
 
 /**
@@ -45,7 +49,7 @@ typedef i32 ID
 /**
  * Service: SocialCoffeeService
  */
-service SocialCoffeeService {
+service SocialCoffeeService extends fb303.FacebookService {
 
     //============================= Health Operations ==================================
 

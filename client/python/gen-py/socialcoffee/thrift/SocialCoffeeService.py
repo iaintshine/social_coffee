@@ -7,6 +7,7 @@
 #
 
 from thrift.Thrift import TType, TMessageType, TException, TApplicationException
+import fb303.FacebookService
 from ttypes import *
 from thrift.Thrift import TProcessor
 from thrift.transport import TTransport
@@ -17,7 +18,7 @@ except:
   fastbinary = None
 
 
-class Iface:
+class Iface(fb303.FacebookService.Iface):
   """
   Service: SocialCoffeeService
   """
@@ -113,15 +114,12 @@ class Iface:
     pass
 
 
-class Client(Iface):
+class Client(fb303.FacebookService.Client, Iface):
   """
   Service: SocialCoffeeService
   """
   def __init__(self, iprot, oprot=None):
-    self._iprot = self._oprot = iprot
-    if oprot is not None:
-      self._oprot = oprot
-    self._seqid = 0
+    fb303.FacebookService.Client.__init__(self, iprot, oprot)
 
   def ping(self):
     """
@@ -314,10 +312,9 @@ class Client(Iface):
     raise TApplicationException(TApplicationException.MISSING_RESULT, "remove_friendship failed: unknown result");
 
 
-class Processor(Iface, TProcessor):
+class Processor(fb303.FacebookService.Processor, Iface, TProcessor):
   def __init__(self, handler):
-    self._handler = handler
-    self._processMap = {}
+    fb303.FacebookService.Processor.__init__(self, handler)
     self._processMap["ping"] = Processor.process_ping
     self._processMap["get_friends"] = Processor.process_get_friends
     self._processMap["create_friendship"] = Processor.process_create_friendship

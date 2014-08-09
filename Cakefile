@@ -26,10 +26,10 @@ task 'generate:thrift', 'Generate thrift bindings', ->
         fs.mkdirSync full_path unless fs.existsSync full_path
 
     # generate html documentation
-    sys_command 'thrift --gen html -out doc/thrift thrift/social_coffee_service.thrift', 'Generating thrift html documentation ...'
+    sys_command 'thrift --gen html -I thrift/ -r -out doc/thrift thrift/social_coffee_service.thrift', 'Generating thrift html documentation ...'
 
     # generate nodejs bindings
-    sys_command 'thrift --gen js:node -out lib/thrift thrift/social_coffee_service.thrift', 'Generating nodejs bindings ...'
+    sys_command 'thrift --gen js:node -I thrift/ -r -out lib/thrift thrift/social_coffee_service.thrift', 'Generating nodejs bindings ...'
 
     # generate client bindings
     bindings = 
@@ -37,4 +37,4 @@ task 'generate:thrift', 'Generate thrift bindings', ->
         python: 'py'
 
     for lang, gen of bindings
-        sys_command "thrift --gen #{gen} -o client/#{lang} thrift/social_coffee_service.thrift", "Generating #{lang} bindings ..."
+        sys_command "thrift --gen #{gen} -I thrift/ -r -o client/#{lang} thrift/social_coffee_service.thrift", "Generating #{lang} bindings ..."

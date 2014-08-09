@@ -5,12 +5,13 @@
 #
 
 require 'thrift'
+require 'facebook_service'
 require 'social_coffee_service_types'
 
 module SocialCoffee
   module Thrift
     module SocialCoffeeService
-      class Client
+      class Client < ::FacebookService::Client 
         include ::Thrift::Client
 
         def ping()
@@ -78,7 +79,7 @@ module SocialCoffee
 
       end
 
-      class Processor
+      class Processor < ::FacebookService::Processor 
         include ::Thrift::Processor
 
         def process_ping(seqid, iprot, oprot)

@@ -5,6 +5,8 @@
 #
 
 require 'thrift'
+require 'fb303_types'
+
 
 module SocialCoffee
   module Thrift

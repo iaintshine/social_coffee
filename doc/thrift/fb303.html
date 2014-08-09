@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<title>Thrift module: fb303</title></head><body>
+<div class="container-fluid">
+<h1>Thrift module: fb303</h1>
+fb303.thrift
+<br/><table class="table-bordered table-striped table-condensed"><thead><th>Module</th><th>Services</th><th>Data types</th><th>Constants</th></thead>
+<tr>
+<td>fb303</td><td><a href="#Svc_FacebookService">FacebookService</a><br/>
+<ul>
+<li><a href="#Fn_FacebookService_aliveSince">aliveSince</a></li>
+<li><a href="#Fn_FacebookService_getCounter">getCounter</a></li>
+<li><a href="#Fn_FacebookService_getCounters">getCounters</a></li>
+<li><a href="#Fn_FacebookService_getCpuProfile">getCpuProfile</a></li>
+<li><a href="#Fn_FacebookService_getName">getName</a></li>
+<li><a href="#Fn_FacebookService_getOption">getOption</a></li>
+<li><a href="#Fn_FacebookService_getOptions">getOptions</a></li>
+<li><a href="#Fn_FacebookService_getStatus">getStatus</a></li>
+<li><a href="#Fn_FacebookService_getStatusDetails">getStatusDetails</a></li>
+<li><a href="#Fn_FacebookService_getVersion">getVersion</a></li>
+<li><a href="#Fn_FacebookService_reinitialize">reinitialize</a></li>
+<li><a href="#Fn_FacebookService_setOption">setOption</a></li>
+<li><a href="#Fn_FacebookService_shutdown">shutdown</a></li>
+</ul>
+</td>
+<td><a href="#Enum_fb_status">fb_status</a><br/>
+</td>
+<td></code></td>
+</tr></table>
+<hr/><h2 id="Enumerations">Enumerations</h2>
+<div class="definition"><h3 id="Enum_fb_status">Enumeration: fb_status</h3>
+Common status reporting mechanism across all services
+<br/><br/><table class="table-bordered table-striped table-condensed">
+<tr><td><code>DEAD</code></td><td><code>0</code></td><td>
+</td></tr>
+<tr><td><code>STARTING</code></td><td><code>1</code></td><td>
+</td></tr>
+<tr><td><code>ALIVE</code></td><td><code>2</code></td><td>
+</td></tr>
+<tr><td><code>STOPPING</code></td><td><code>3</code></td><td>
+</td></tr>
+<tr><td><code>STOPPED</code></td><td><code>4</code></td><td>
+</td></tr>
+<tr><td><code>WARNING</code></td><td><code>5</code></td><td>
+</td></tr>
+</table></div>
+<hr/><h2 id="Services">Services</h2>
+<h3 id="Svc_FacebookService">Service: FacebookService</h3>
+Standard base service
+<br/><div class="definition"><h4 id="Fn_FacebookService_getName">Function: FacebookService.getName</h4>
+<pre><code>string</code> getName()
+</pre>Returns a descriptive name of the service
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_getVersion">Function: FacebookService.getVersion</h4>
+<pre><code>string</code> getVersion()
+</pre>Returns the version of the service
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_getStatus">Function: FacebookService.getStatus</h4>
+<pre><code><a href="fb303.html#Enum_fb_status">fb_status</a></code> getStatus()
+</pre>Gets the status of this service
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_getStatusDetails">Function: FacebookService.getStatusDetails</h4>
+<pre><code>string</code> getStatusDetails()
+</pre>User friendly description of status, such as why the service is in
+the dead or warning state, or what is being started or stopped.
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_getCounters">Function: FacebookService.getCounters</h4>
+<pre><code>map&lt;<code>string</code>, <code>i64</code>&gt;</code> getCounters()
+</pre>Gets the counters for this service
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_getCounter">Function: FacebookService.getCounter</h4>
+<pre><code>i64</code> getCounter(<code>string</code> key)
+</pre>Gets the value of a single counter
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_setOption">Function: FacebookService.setOption</h4>
+<pre><code>void</code> setOption(<code>string</code> key,
+               <code>string</code> value)
+</pre>Sets an option
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_getOption">Function: FacebookService.getOption</h4>
+<pre><code>string</code> getOption(<code>string</code> key)
+</pre>Gets an option
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_getOptions">Function: FacebookService.getOptions</h4>
+<pre><code>map&lt;<code>string</code>, <code>string</code>&gt;</code> getOptions()
+</pre>Gets all options
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_getCpuProfile">Function: FacebookService.getCpuProfile</h4>
+<pre><code>string</code> getCpuProfile(<code>i32</code> profileDurationInSec)
+</pre>Returns a CPU profile over the given time interval (client and server
+must agree on the profile format).
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_aliveSince">Function: FacebookService.aliveSince</h4>
+<pre><code>i64</code> aliveSince()
+</pre>Returns the unix time that the server has been running since
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_reinitialize">Function: FacebookService.reinitialize</h4>
+<pre><code>void</code> reinitialize()
+</pre>Tell the server to reload its configuration, reopen log files, etc
+<br/></div><div class="definition"><h4 id="Fn_FacebookService_shutdown">Function: FacebookService.shutdown</h4>
+<pre><code>void</code> shutdown()
+</pre>Suggest a shutdown to the server
+<br/></div></div></body></html>
