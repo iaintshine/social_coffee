@@ -13,12 +13,12 @@ class FacebookBase
     @counters = {}
     @options  = {}
     @alive    = Date.now()
-    @name     = "SocialCoffee - v#{SocialCoffee.version} (#{SocialCoffee.codename})"
+    @desc     = "SocialCoffee - v#{SocialCoffee.version} (#{SocialCoffee.codename})"
 
     # -- Standard service information --
 
     @getName: (result) ->
-        result null, @name
+        result null, @desc
 
     @getVersion: (result) ->
         result null, SocialCoffee.version
@@ -27,7 +27,7 @@ class FacebookBase
         result null, ttypes.fb_status.ALIVE
 
     @getStatusDetails: (result) ->
-        result null, "service is up and running"
+        result null, "ALIVE - service is up and running"
 
     @aliveSince: (result) ->
         result null, @alive
