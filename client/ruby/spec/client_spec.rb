@@ -42,14 +42,88 @@ describe SocialCoffee::Client do
         end
 
         describe 'valid call' do
-            it 'should return an array with ids' do
-                expect(@client.get_friends(user)).to be_instance_of(Array)
+            describe 'user without friends' do 
+                it 'should return an array' do
+                    expect(@client.get_friends(user)).to be_instance_of(Array)
+                end
+
+                it 'should return an empty array' do
+                    expect(@client.get_friends(user)).to be_empty
+                end
+            end
+
+            describe 'user with friends' do
+                let(:user_a) { 1 }
+                let(:user_b) { 2 }
+
+                before :each do
+                    @client.create_friendship user_a, user_b
+                end
+
+                after :each do
+                    @client.remove_friendship user_a, user_b
+                end
+
+                it 'should return an array' do
+                    expect(@client.get_friends(user_a)).to be_instance_of(Array)
+                end
+
+                it 'should return one element' do
+                    expect(@client.get_friends(user_a).length).to eq(1)
+                end
+
+                it 'should return user_b id' do
+                    expect(@client.get_friends(user_a).first).to eq(user_b)
+                end
             end
         end
     end
 
     describe :create_friendship do
+        let(:user_a) { 1 }
+        let(:user_b) { 2 }
 
+        describe 'invalid calls' do
+            it 'should raise error if any argument is null' do
+                expect{ @client.create_friendship nil, user_b }.to raise_error
+                expect{ @client.create_friendship user_a, nil }.to raise_error
+            end
+
+            it 'should raise error if any argument has non positive integer value' do
+                expect{ @client.create_friendship -user_a, user_b }.to raise_error
+                expect{ @client.create_friendship user_a, -user_b }.to raise_error
+            end
+
+            it 'should raise error if both arguments are equal' do
+                expect{ @client.create_friendship user_a, user_a }.to raise_error
+            end
+        end
+
+        describe 'valid calls' do
+            describe 'users are not friends' do
+                after :each do 
+                    @client.remove_friendship user_a, user_b
+                end
+
+                it 'should return true' do
+                    expect(@client.create_friendship(user_a, user_b)).to eq(true)
+                end
+            end
+
+            describe 'users are already friends' do
+                before :each do 
+                    @client.create_friendship user_a, user_b
+                end
+
+                after :each do 
+                    @client.remove_friendship user_a, user_b
+                end
+
+                it 'should return false' do
+                    expect(@client.create_friendship(user_a, user_b)).to eq(false)
+                end
+            end
+        end
     end
 
     describe :remove_friendship do
