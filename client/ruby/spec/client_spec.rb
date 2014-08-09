@@ -24,14 +24,32 @@ describe SocialCoffee::Client do
 
     describe :ping do
         it 'should return pong string' do
-            @client.ping
+            expect(@client.ping).to eq("pong")
         end
     end
 
     describe :get_friends do
+        let(:user) { 1 }
+
+        describe 'invalid calls' do
+            it 'should raise error if null' do
+                expect{ @client.get_friends nil }.to raise_error 
+            end
+
+            it 'should raise error if non positive integer value' do
+                expect{ @client.get_friends -user }.to raise_error
+            end
+        end
+
+        describe 'valid call' do
+            it 'should return an array with ids' do
+                expect(@client.get_friends(user)).to be_instance_of(Array)
+            end
+        end
     end
 
     describe :create_friendship do
+
     end
 
     describe :remove_friendship do
