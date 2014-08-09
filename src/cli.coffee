@@ -14,6 +14,7 @@ class Completer
     COMPLETIONS = 
         friends: ['list']
         friendship: ['create', 'remove']
+        server: ['info', 'counters', 'options']
         quit: []
         ping: []
     
@@ -56,6 +57,13 @@ class Command
 
     prompt: -> @context.prompt()
 
+    print: (error, result) =>
+        if error
+            console.log "error occurred: " + error.message 
+        else
+            console.log result
+        @prompt()
+
     # All classes derived from `Command` should implement it's own behaviour by implementing `#execute`
     # method. Default behaviour is to display an array of trimmed client commands. 
     execute: (commands) ->
@@ -76,12 +84,25 @@ class QuitCommand extends Command
 class PingCommand extends Command 
 
     execute: (commands) ->
-        Thrift.Client.client.ping (err, result) =>
-            if err
-                console.log "error occurred: " + err.message 
-            else
-                console.log result
-            @prompt()
+        Thrift.Client.client.ping @print
+
+# `ServerInfo` command is issued if user writes `server info` and asks remote server for thrift server description.
+class ServerInfoCommand extends Command 
+
+    execute: (commands) ->
+        Thrift.Client.client.getName @print
+
+# `ServerCounters` command is issued if user writes `server counters` and asks remote server for performance counters.
+class ServerCountersCommand extends Command
+
+    execute: (commands) ->
+        Thrift.Client.client.getCounters @print
+
+# `ServerOptions` command is issued if user writes `server options` and asks remote server for server options/configuration.
+class ServerOptionsCommand extends Command
+
+    execute: (commands) ->
+        Thrift.Client.client.getOptions @print
 
 # `ListFriends` command is issued if user writes `friends list {id}` where an id is user's unique identifier.
 # If a user has friends than the list of user's friends IDs is displayed, or empty array otherwise.    
@@ -95,12 +116,7 @@ class ListFriendsCommand extends Command
                 console.log "error occurred: argument must be a positive number"
                 return @prompt()
 
-            Thrift.Client.client.get_friends id, (err, friends) =>
-                if err
-                    console.log "error occurred: " + err.message
-                else
-                    console.log friends
-                @prompt()
+            Thrift.Client.client.get_friends id, @print
 
 # `CreateFriends` command is issued if user writes `friendship create {usera} {userb}` where usera and userb are
 # both users ids. The command call displays a message indicating whether or not the operation performed created a new
@@ -219,18 +235,24 @@ class CLI
             commands = line.trim().split /\s+/i
 
             switch commands[0]
-                when "friends"
+                when 'friends'
                     if commands.length > 1 and commands[1] == 'list' 
                         new ListFriendsCommand(@cmd_interface).execute commands
 
-                when "friendship"
+                when 'friendship'
                     if commands.length > 1
                         switch commands[1]
                             when 'create' then new CreateFriendshipCommand(@cmd_interface).execute commands 
                             when 'remove' then new RemoveFriendshipCommand(@cmd_interface).execute commands
-                when "ping"
+                when 'server'
+                    if commands.length > 1
+                        switch commands[1]
+                            when 'info'     then new ServerInfoCommand(@cmd_interface).execute commands
+                            when 'counters' then new ServerCountersCommand(@cmd_interface).execute commands
+                            when 'options'  then new ServerOptionsCommand(@cmd_interface).execute commands
+                when 'ping'
                     new PingCommand(@cmd_interface).execute commands
-                when "quit"
+                when 'quit', 'exit'
                     new QuitCommand(@cmd_interface).execute commands
                 else
                     console.log 'command unknown' if line.trim().length > 0 
