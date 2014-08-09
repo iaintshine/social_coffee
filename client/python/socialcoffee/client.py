@@ -3,21 +3,18 @@ import sys
 import contextlib
 
 here = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.join(here, 'gen-py'))
-
-print(sys.path)
-
-from socialcoffee.thrift import SocialCoffeeService
-from socialcoffee.thrift.ttypes import *
+sys.path.insert(0, os.path.join(here, 'gen-py'))
 
 from thrift import Thrift
 from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 
+from socialcoffee.thrift import SocialCoffeeService
+from socialcoffee.thrift.ttypes import *
+
 class ClientException(Exception):
     pass
-
 
 class Client(object):
     """A wrapper around the thrift API."""
@@ -34,7 +31,7 @@ class Client(object):
         """
 
         # Make a socket
-        transport = TSocket.TSocket(server, port)
+        transport = TSocket.TSocket(host, port)
         transport.setTimeout(timeout)
 
         # Create a buffered transport. Raw sockets are very slow.
@@ -50,15 +47,15 @@ class Client(object):
         self.close()
 
     def open(self):
-        if not self.__clien.isOpen():
-            self.__client.open()
+        if not self.__transport.isOpen():
+            self.__transport.open()
 
     def close(self):
-        if self.__client.isOpen():
-            self.__client.close()
+        if self.__transport.isOpen():
+            self.__transport.close()
 
     def isOpen(self):
-        self.__client.isOpen()
+        self.__transport.isOpen()
 
     def __getattr__(self, name):
         """
@@ -84,6 +81,5 @@ def connect(host='localhost', port=9090):
         print("Exception occurred during operation", e)
 
 if __name__ == '__main__':
-    with connect() as client:
+    with connect('localhost', 9090) as client:
         print(client.ping())
-
