@@ -45,6 +45,22 @@ You need to clean up the connection by calling `client.close`.
 
 For more information take a look under `spec` directory.
 
+## Development
+
+To run tests 
+
+1. Make sure all gem's development dependencies are available
+
+    $ bundle install
+
+2. Make sure social coffee thrift server is up and running on localhost on port `9090`
+
+    $ node lib/index.js
+
+3. Run tests
+
+    $ rspec spec
+
 ## Contributing
 
 1. Fork it
