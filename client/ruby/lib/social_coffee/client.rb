@@ -39,8 +39,12 @@ module SocialCoffee
             info "SocialCoffee::Client disconnected from remote host at #{@remote_address}"
         end
 
-        def method_missing(method, *args)
-            @client.send method, *args
+        def method_missing(method_name, *args, &block)
+            @client.send method_name, *args, &block
+        end
+
+        def respond_to_missing?(method_name, include_private = false)
+            @client.respond_to? method_name
         end
 
         %w(fatal error warn info debug).each do |level|
