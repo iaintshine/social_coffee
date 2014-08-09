@@ -1,3 +1,4 @@
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "gen-rb"))
 Dir[File.join(File.dirname(__FILE__), "gen-rb/*.rb")].each { |path| require path }
 
 module SocialCoffee
