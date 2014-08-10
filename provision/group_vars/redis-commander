@@ -1,0 +1,13 @@
+---
+redis_commander:
+  # redis master options
+  redis:
+    host: "{{ hostvars[groups['redis-master'][0]]['ansible_eth0']['ipv4']['address'] }}"
+    port: 6379
+    password: supersecret
+
+  # redis commander http interface options
+  port: 9002
+  http_auth:
+    username: secret
+    password: supersecret
