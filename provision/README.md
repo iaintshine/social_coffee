@@ -16,27 +16,27 @@ What gets installed:
 
 1. Install sshpass (OSX Mavericks or above). This step is required only if you are going to use `mkpasswd` python utility. 
     
-    $ cd ~/Downloads
-    $ curl -O -L http://downloads.sourceforge.net/project/sshpass/sshpass/1.05/sshpass-1.05.tar.gz
-    $ tar xvzf sshpass-1.05.tar.gz
-    $ cd sshpass-1.05
-    $ ./configure
-    $ make
-    $ sudo make install
+        $ cd ~/Downloads
+        $ curl -O -L http://downloads.sourceforge.net/project/sshpass/sshpass/1.05/sshpass-1.05.tar.gz
+        $ tar xvzf sshpass-1.05.tar.gz
+        $ cd sshpass-1.05
+        $ ./configure
+        $ make
+        $ sudo make install
 
 2. Install (Oracle VirtualBox)[https://www.virtualbox.org/wiki/Downloads]. Required by Vagrant.
 3. Install (Vagrant)[https://www.vagrantup.com/downloads]
 4. Install Ansible
     
-    $ pip install ansible 
+        $ pip install ansible 
 
 5. If you are running local development mode using vagrant execute `scripts/bootstrap` python script to prepare your local environment
 
-    $ sudo scripts/bootstrap
+        $ sudo scripts/bootstrap
 
 6. If you are going to use `mkpasswd` python utility, please ensure that the Passlib password hashing library is installed. Exceute:
 
-    $ pip install passlib
+        $ pip install passlib
 
 ## Installation
 
