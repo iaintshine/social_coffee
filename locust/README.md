@@ -11,6 +11,9 @@ The easiest way to install Locust is using pip:
 
 ## Testing
 
+Make sure to first provision the server using `provision` script or change the `host` variable under `locustfile.py` at line `72`
+to `localhost` or any other host where social coffee thrift server is running.
+
 To run Locust (if we are in the local locust directory) it's as simple as calling
 
     $ locust
