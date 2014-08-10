@@ -1,0 +1,10 @@
+---
+- include: install.yml
+  tags:
+    - social_coffee
+    - install
+
+- include: configure.yml
+  tags:
+    - social_coffee
+    - configure

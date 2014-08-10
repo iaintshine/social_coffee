@@ -1,0 +1,9 @@
+[program:social_coffee]
+command=/usr/local/bin/node {{ social_coffee.root_path }}/lib/index.js --port {{ social_coffee.port }}
+process_name=%(program_name)s
+
+stderr_logfile = /var/log/supervisord/social_coffee-stderr.log
+stdout_logfile = /var/log/supervisord/social_coffee-stdout.log
+
+autostart=true
+autorestart=true

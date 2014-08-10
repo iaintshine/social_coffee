@@ -1,0 +1,30 @@
+---
+- name: Create social coffee database configuration
+  template:
+    src=db.yaml.j2
+    dest={{ social_coffee.root_path }}/config/db.yaml
+    owner=deploy
+    group=deploy
+  notify:
+    - reload supervisor
+
+- name: Create supervisor configuration
+  template:
+    src=socialcoffee-supervisor.conf.j2
+    dest='{{ supervisor_conf_dir }}/socialcoffee.conf'
+    mode=754
+  notify:
+    - reload supervisor
+
+- name: Update supervisor configuration files dictionary
+  shell: "{{ item }}"
+  with_items:
+    - supervisorctl reread
+    - supervisorctl update
+    - supervisorctl start social_coffee
+  ignore_errors: True
+
+- name: Open firewall ports
+  shell: ufw allow {{ item }}
+  with_items:
+    - "{{ social_coffee.port }}"

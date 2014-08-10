@@ -1,0 +1,15 @@
+{% set eth_interface_number = '1' if ansible_bios_version == 'VirtualBox' else '0' %}
+{% set ansible_eth = 'ansible_eth{0}'.format(eth_interface_number) %}
+{% set redis_host =  'localhost' if inventory_hostname in groups['redis-master'] else hostvars[groups['redis-master'][0]][ansible_eth]['ipv4']['address'] %}
+
+development:
+  host: {{ redis_host }}
+  port: 6379
+
+test:
+  host: {{ redis_host }}
+  port: 6379
+
+production:
+  host: {{ redis_host }}
+  port: 6379

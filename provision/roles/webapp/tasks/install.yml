@@ -1,0 +1,22 @@
+---
+- name: Ensure social_coffee root directory exists
+  file:
+    path={{ social_coffee.root_path }}
+    state=directory
+
+- name: Clone repository
+  git:
+    repo=https://github.com/iaintshine/social_coffee.git
+    dest={{ social_coffee.root_path }}
+    recursive=yes
+
+- name: Install dependencies
+  npm: 
+    path={{ social_coffee.root_path }}
+
+- name: Chane ownership
+  file:
+    path={{ social_coffee.root_path }}
+    recurse=yes
+    owner=deploy
+    group=deploy

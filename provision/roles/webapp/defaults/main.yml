@@ -1,0 +1,6 @@
+---
+supervisor_conf_dir: /etc/supervisor/conf.d
+
+social_coffee:
+  root_path: /opt/social_coffee
+  port: 9090
