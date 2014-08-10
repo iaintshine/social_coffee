@@ -4,12 +4,15 @@
 
 development:
   host: {{ redis_host }}
-  port: 6379
+  port: {{ social_coffee.redis.port }}
+  password: {{ social_coffee.redis.password }}
 
 test:
   host: {{ redis_host }}
-  port: 6379
+  port: {{ social_coffee.redis.port }}
+  password: {{ social_coffee.redis.password }}
 
 production:
   host: {{ redis_host }}
-  port: 6379
+  port: {{ social_coffee.redis.port }}
+  password: {{ social_coffee.redis.password }}

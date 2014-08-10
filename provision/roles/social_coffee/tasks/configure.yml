@@ -10,7 +10,7 @@
 
 - name: Create supervisor configuration
   template:
-    src=socialcoffee-supervisor.conf.j2
+    src=socialcoffee-supervisord.conf.j2
     dest='{{ supervisor_conf_dir }}/socialcoffee.conf'
     mode=754
   notify:

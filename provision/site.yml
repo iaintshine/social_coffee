@@ -28,3 +28,5 @@
   roles:
     - nodejs
     - social_coffee
+  tags:
+    - appserver

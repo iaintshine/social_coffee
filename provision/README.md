@@ -50,15 +50,24 @@ Run for **the first time** (user 'deploy' doesn't exist) and bootstrap the os co
 
 Second run don't need passwords
     
-    $ ansible-playbook -i development playbooks/bootstrap.yml --user deploy --sudo
+    $ ansible-playbook -i development playbooks/bootstrap.yml --user deploy --private-key=~/.vagrant.d/insecure_private_key --sudo
 
 To deploy whole site
 
-    $ ansible-playbook -i development site.yml --user deploy --sudo
+    $ ansible-playbook -i development site.yml --user deploy --private-key=~/.vagrant.d/insecure_private_key --sudo
 
 To deploy only part of the site using specified tags
 
-    $ ansible-playbook -i development site.yml --user deploy --sudo --tags={{ comma_seperated_tags }}
+    $ ansible-playbook -i development site.yml --user deploy --private-key=~/.vagrant.d/insecure_private_key --sudo --tags={{ comma_seperated_tags }}
+
+## Applications
+
+All installed applications are accessible under `srv01.platform.com` domain: 
+
+* port `6379` - redis server. Authorization password `supersecret`
+* port `9001` - supervisord http interface. Authorization with useranme `secret` and password `supersecret`.
+* port `9002` - redis commander. Authorization with username `secret` and password `supersecret`.
+* port `9090` - social coffee thrift server.
 
 ## Notice
 

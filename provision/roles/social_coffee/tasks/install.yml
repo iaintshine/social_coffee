@@ -9,6 +9,7 @@
     repo=https://github.com/iaintshine/social_coffee.git
     dest={{ social_coffee.root_path }}
     recursive=yes
+    update=yes
 
 - name: Install dependencies
   npm: 
