@@ -23,8 +23,8 @@
   tags:
     - redis-commander
 
-- name: Configure webapp server
-  hosts: webapp
+- name: Configure app servers
+  hosts: appserver
   roles:
     - nodejs
-    - webapp
+    - social_coffee

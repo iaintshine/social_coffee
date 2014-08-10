@@ -7,5 +7,5 @@ srv01.platform.com
 [redis-commander]
 srv01.platform.com
 
-[webapp]
+[appserver]
 srv01.platform.com
