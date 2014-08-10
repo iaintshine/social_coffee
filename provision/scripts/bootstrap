@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 __version__ = '0.1.0'
-__author__  = 'bodziomista@gmail.com'
+__author__  = 'iaintshine <bodziomista@gmail.com>'
 
 import os
 import sys

@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+__version__ = '0.1.0'
+__author__  = 'iaintshine <bodziomista@gmail.com>'
+
+
+import os
+import sys
+
+try:
+    from passlib.hash import sha512_crypt
+except:
+    print("Please ensure that the Passlib password hashing library is installed. Exceute 'pip install passlib'")
+    sys.exit(1)
+
+def mkpasswd(password):
+    return sha512_crypt.encrypt(password)
+
+def main(argv):
+    if not argv:
+        print('Usage: mkpasswd <password>')
+        sys.exit(1)
+
+    print(mkpasswd(argv[0]))
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
