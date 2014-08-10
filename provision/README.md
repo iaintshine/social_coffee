@@ -40,13 +40,17 @@ What gets installed:
 
 ## Installation
 
+Long story short - use `provision` script
+
+    $ ./provision
+
 Create and configure local virtual machines using vagrant
 
     $ vagrant up
 
 Run for **the first time** (user 'deploy' doesn't exist) and bootstrap the os common configuration
     
-    $ ansible-playbook -i development site.yml --user vagrant --private-key=~/.vagrant.d/insecure_private_key --sudo --tags=common -vvvvv
+    $ ansible-playbook -i development site.yml --user vagrant --private-key=~/.vagrant.d/insecure_private_key --sudo --tags=common -vvvv
 
 Second run don't need passwords
     
@@ -60,6 +64,10 @@ To deploy only part of the site using specified tags
 
     $ ansible-playbook -i development site.yml --user deploy --private-key=~/.vagrant.d/insecure_private_key --sudo --tags={{ comma_seperated_tags }}
 
+To stop the running machine Vagrant is managing and destroy all resources that were created during the machine creation process execute:
+
+    $ vagrant destroy
+
 ## Applications
 
 All installed applications are accessible under `srv01.platform.com` domain: 
@@ -68,6 +76,12 @@ All installed applications are accessible under `srv01.platform.com` domain:
 * port `9001` - supervisord http interface. Authorization with useranme `secret` and password `supersecret`.
 * port `9002` - redis commander. Authorization with username `secret` and password `supersecret`.
 * port `9090` - social coffee thrift server.
+
+## Sever test
+
+To connect to social coffee thrift server use `social-cli` utility. 
+
+    $ bin/social-cli -h srv01.platform.com
 
 ## Notice
 
