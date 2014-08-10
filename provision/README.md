@@ -24,8 +24,8 @@ What gets installed:
         $ make
         $ sudo make install
 
-2. Install (Oracle VirtualBox)[https://www.virtualbox.org/wiki/Downloads]. Required by Vagrant.
-3. Install (Vagrant)[https://www.vagrantup.com/downloads]
+2. Install [Oracle VirtualBox](https://www.virtualbox.org/wiki/Downloads). Required by Vagrant.
+3. Install [Vagrant](https://www.vagrantup.com/downloads)
 4. Install Ansible
     
         $ pip install ansible 
