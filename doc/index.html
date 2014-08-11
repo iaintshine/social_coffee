@@ -254,31 +254,67 @@ bye bye...
 
 <h2 id="testing">Testing</h2>
 
-<h2 id="load-testing">Load Testing</h2>
+<h3 id="unit-testing">Unit Testing</h3>
+
+<p>To run unit tests execute:</p>
+
+<pre><code>$ npm test
+</code></pre>
+
+<h3 id="load-testing">Load Testing</h3>
 
 <p>For more information about how to load test the thrift service using Locust see <a href="https://github.com/iaintshine/social_coffee/tree/master/locust">load testing</a></p>
 
 <h2 id="development">Development</h2>
 
-<pre><code>npm test
-</code></pre>
-
 <h3 id="requirements">Requirements</h3>
 
-<ul>
-<li><p>Globally installed Coffeescript compiler</p>
+<ol>
+<li><p>Globally install Coffeescript compiler</p>
 
-<p>[sudo] npm install -g coffeescript</p></li>
-<li><p>Globally installed Cake</p>
+<pre><code>$ [sudo] npm install -g coffeescript
+</code></pre></li>
+<li><p>Globally install Cake</p>
 
-<p>[sudo] npm install -g cake</p></li>
-</ul>
+<pre><code>$ [sudo] npm install -g cake
+</code></pre></li>
+<li><p>If you are going to generate documentation, globally install groc</p>
+
+<pre><code>$ [sudo] npm install -g groc
+</code></pre></li>
+<li><p>If you are going to regenerate and change thrift interfaces install Thrift compiler with support for at least Node.js, Ruby and Python. <a href="https://thrift.apache.org">Apache Thrift</a>  </p></li>
+</ol>
+
+<p>Now if all the above requirements are installed execute <code>watch</code> cake task to watch <code>src/</code> directory for changes and compile <code>*.coffee</code> files into <code>*.js</code> equivalent.</p>
+
+<pre><code>    $ cake watch  
+</code></pre>
 
 <h3 id="cake-tasks">Cake Tasks</h3>
+
+<ul>
+<li><code>watch</code> - the task used for watching for Coffeescript file changes and recompilation to Javascript. </li>
+<li><code>generate:thrift</code> - the task used for generating thrift bindings for Node.js, Python, Ruby and human-readable HTML documentation generation from thrift interfaces stored under <code>thrift/</code> directory.</li>
+</ul>
+
+<p>E.g. to regenerate thrift bindings simply call:</p>
+
+<pre><code>$ cake generate:thrift 
+</code></pre>
 
 <h2 id="provisioning">Provisioning</h2>
 
 <p>For more information about how to provision the service using Ansible see <a href="https://github.com/iaintshine/social_coffee/tree/master/provision">provision</a></p>
+
+<h2 id="whats-missing">What's missing</h2>
+
+<ul>
+<li>Server Clustering</li>
+<li>Redis Automatic failover with sentinel</li>
+<li>Database model support for replication with master/multiple slaves</li>
+<li>Multiple Redis instances sharding</li>
+<li>Distributed transactions support with Two-phase Commit Protocol. Instead of writing a coordinator to handle distributed transactions we might choose to use e.g. Hyperdex data store which supports distirbuted transactions with it's own WARP protocol. </li>
+</ul>
 
 <h2 id="contributing">Contributing</h2>
 
