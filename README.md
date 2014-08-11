@@ -118,14 +118,25 @@ users:2:friends -> [ 1 ]
 
 ## Installation
 
-    npm install
+### Runtime Requirements
 
-## Requirements
+To operate properly Social Coffee service requires
 
-## Configuration
+* `Node.js` platform
+* and access to `Redis` key-value data store
+
+### Service Requirements
+
+Installation of server's required packages is as simple as calling
+
+    $ npm install
 
 ## Running
-  
+
+### Configuration
+
+### Starting Server
+
 ## CLI
 
 *Social Coffee* service is delivered with a command line tool similar `redis-cli` that works in REPL manner.
@@ -171,16 +182,9 @@ localhost:9000>friends list 1
 localhost:9000>quit
 bye bye...
 ```  
+## Clients
 
-## Development Requirements
-
-* Globally installed Coffeescript compiler
-
-    [sudo] npm install -g coffeescript
-
-* Globally installed Cake
-
-    [sudo] npm install -g cake
+# TODO
 
 ## Testing
 
@@ -191,6 +195,18 @@ For more information about how to load test the thrift service using Locust see 
 ## Development
 
     npm test
+
+### Requirements
+
+* Globally installed Coffeescript compiler
+
+    [sudo] npm install -g coffeescript
+
+* Globally installed Cake
+
+    [sudo] npm install -g cake
+
+### Cake Tasks
 
 ## Provisioning
 
