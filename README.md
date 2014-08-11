@@ -135,7 +135,32 @@ Installation of server's required packages is as simple as calling
 
 ### Configuration
 
-### Starting Server
+All required configuration files are found under `config/` directory and use YAML format. For now there is only a single configuration file required called `db.yaml`. 
+
+`db.yaml` contains a database configuration (here Redis) for every runtime environment (e.g. development, test, production, staging). If redis is installed on a `localhost` with default configuration creating database configuration file is as simple as calling:
+
+    $ cp config/db.yaml.example config/db.yaml
+
+Parameters:
+* `host`, string, required, URL of the host machine where Redis is installed
+* `port`, number, required, the port number of a Redis instance
+* `password`, string, optional, if a Redis instance is password-protected, password required for authentication
+
+### Starting the Server
+
+By default the server ships with four enviornments: "development", "test", "staging" and "production".
+If no environment is specified the server starts in development environemnt. So calling:
+
+    $ node lib/index.js
+
+starts the server bound to host `0.0.0.0`, port `9090` and in `development` environment.
+To change an environemnt use `NODE_ENV` environment variable. E.g. to start the server in `production` enviornment on port `3000` execute:
+    
+    $ NODE_ENV=production node lib/index.js -p 3000
+
+Options:
+
+* `-p`, `--port`, `number`, default: `9090`, the port number
 
 ## CLI
 
