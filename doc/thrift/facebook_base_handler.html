@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="en"><head><title>thrift/facebook_base_handler</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="thrift/facebook_base_handler"><meta name="groc-project-path" content="src/thrift/facebook_base_handler.coffee"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/thrift/facebook_base_handler.coffee</div></div><div id="document"><div class="segment"><div class="code"><div class="wrapper"><span class="nv">SocialCoffee = </span><span class="nx">require</span> <span class="s">&#39;../version&#39;</span> 
+
+<span class="nv">ttypes = </span><span class="nx">require</span> <span class="s">&#39;./fb303_types&#39;</span>
+
+<span class="nv">logger = </span><span class="nx">require</span> <span class="s">&#39;winston&#39;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Handler implementation --</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">FacebookBase</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Shard variables --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@counters = </span><span class="p">{}</span>
+    <span class="vi">@options  = </span><span class="p">{}</span>
+    <span class="vi">@alive    = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+    <span class="vi">@desc     = </span><span class="s">&quot;SocialCoffee - v</span><span class="si">#{</span><span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">version</span><span class="si">}</span><span class="s"> (</span><span class="si">#{</span><span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">codename</span><span class="si">}</span><span class="s">)&quot;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Standard service information --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@getName: </span><span class="nf">(result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">@desc</span>
+
+    <span class="vi">@getVersion: </span><span class="nf">(result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">SocialCoffee</span><span class="p">.</span><span class="nx">version</span>
+
+    <span class="vi">@getStatus: </span><span class="nf">(result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">ttypes</span><span class="p">.</span><span class="nx">fb_status</span><span class="p">.</span><span class="nx">ALIVE</span>
+
+    <span class="vi">@getStatusDetails: </span><span class="nf">(result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="s">&quot;ALIVE - service is up and running&quot;</span>
+
+    <span class="vi">@aliveSince: </span><span class="nf">(result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">@alive</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Performance counters --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@getCounters: </span><span class="nf">(result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">@counters</span>
+
+    <span class="vi">@getCounter: </span><span class="nf">(key, result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="p">(</span><span class="k">if</span> <span class="nx">@counters</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="o">?</span> <span class="k">then</span> <span class="nx">@counters</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="vi">@getCpuProfile: </span><span class="nf">(profileDurationInSec, result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="s">&quot;&quot;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Performance counters helpers (not included in thrift definition) --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@resetCounter: </span><span class="nf">(key) -&gt;</span>
+        <span class="nx">@counters</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="vi">@incrementCounter: </span><span class="nf">(key) -&gt;</span>
+        <span class="nx">@counters</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="k">if</span> <span class="nx">@counters</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="o">?</span> <span class="k">then</span> <span class="nx">@counters</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="vi">@deleteCounter: </span><span class="nf">(key) -&gt;</span>
+        <span class="k">delete</span> <span class="nx">@counters</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- Service options --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@setOption: </span><span class="nf">(key, value, result) -&gt;</span>
+        <span class="nx">@options</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+        <span class="nx">result</span> <span class="kc">null</span>
+
+    <span class="vi">@getOption: </span><span class="nf">(key, result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="p">(</span><span class="k">if</span> <span class="nx">@options</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="o">?</span> <span class="k">then</span> <span class="nx">@options</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="k">else</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="vi">@getOptions: </span><span class="nf">(result) -&gt;</span>
+        <span class="nx">result</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">@options</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>-- System control --</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@reinitialize: </span><span class="nf">-&gt;</span>
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span> <span class="s">&quot;Reinitialization request just came. Skipping ...&quot;</span>
+
+    <span class="vi">@shutdown: </span><span class="nf">-&gt;</span>
+        <span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span> <span class="s">&quot;Shutdown request just came. Skipping ...&quot;</span>
+
+<span class="nv">module.exports = </span><span class="nx">FacebookBase</span></div></div></div></div></body></html>

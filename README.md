@@ -243,19 +243,41 @@ For more information about how to load test the thrift service using Locust see 
 
 ### Requirements
 
-* Globally installed Coffeescript compiler
+1. Globally install Coffeescript compiler
 
-    [sudo] npm install -g coffeescript
+        $ [sudo] npm install -g coffeescript
 
-* Globally installed Cake
+2. Globally install Cake
 
-    [sudo] npm install -g cake
+        $ [sudo] npm install -g cake
+
+3. If you are going to generate documentation, globally install groc
+
+        $ [sudo] npm install -g groc
+
+4. If you are going to regenerate and change thrift interfaces install Thrift compiler with support for at least Node.js, Ruby and Python. [Apache Thrift](https://thrift.apache.org)  
+
+Now if all the above requirements are installed execute `watch` cake task to watch `src/` directory for changes and compile `*.coffee` files into `*.js` equivalent.
+
+        $ cake watch  
 
 ### Cake Tasks
+
+* `watch` - the task used for watching for Coffeescript file changes and recompilation to Javascript. 
+* `generate:thrift` - the task used for generating thrift bindings for Node.js, Python, Ruby and human-readable HTML documentation generation from thrift interfaces stored under `thrift/` directory.
+
+E.g. to regenerate thrift bindings simply call:
+
+    $ cake generate:thrift 
 
 ## Provisioning
 
 For more information about how to provision the service using Ansible see [provision](https://github.com/iaintshine/social_coffee/tree/master/provision)
+
+
+## What's missing
+
+*
 
 ## Contributing
 
