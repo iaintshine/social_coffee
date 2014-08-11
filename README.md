@@ -32,7 +32,7 @@ and high-throughput.
 ## CLI
 
 *Social Coffee* service is delivered with a command line tool similar `redis-cli` that works in REPL manner.
-`social-cli` supports tab autocompletion and comes with just two options. The first one specified a port number 
+`social-cli` supports tab autocompletion and comes with just two options. The first one specifies a port number 
 and the second one specifies a host to which thrift client should connect.
 
 ### Options
@@ -87,9 +87,17 @@ bye bye...
 
 ## Testing
 
+## Load Testing
+
+For more information about how to load test the thrift service using Locust see [load testing](https://github.com/iaintshine/social_coffee/locust)
+
 ## Development
 
     npm test
+
+## Provisioning
+
+For more information about how to provision the service using Ansible see [provision](https://github.com/iaintshine/social_coffee/provision)
 
 ## Contributing
 
