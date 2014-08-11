@@ -89,7 +89,7 @@ bye bye...
 
 ## Load Testing
 
-For more information about how to load test the thrift service using Locust see [load testing](https://github.com/iaintshine/social_coffee/locust)
+For more information about how to load test the thrift service using Locust see [load testing](https://github.com/iaintshine/social_coffee/tree/master/locust)
 
 ## Development
 
@@ -97,7 +97,7 @@ For more information about how to load test the thrift service using Locust see 
 
 ## Provisioning
 
-For more information about how to provision the service using Ansible see [provision](https://github.com/iaintshine/social_coffee/provision)
+For more information about how to provision the service using Ansible see [provision](https://github.com/iaintshine/social_coffee/tree/master/provision)
 
 ## Contributing
 
