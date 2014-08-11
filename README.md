@@ -277,7 +277,11 @@ For more information about how to provision the service using Ansible see [provi
 
 ## What's missing
 
-*
+* Server Clustering
+* Redis Automatic failover with sentinel
+* Database model support for replication with master/multiple slaves
+* Multiple Redis instances sharding
+* Distributed transactions support with Two-phase Commit Protocol. Instead of writing a coordinator to handle distributed transactions we might choose to use e.g. Hyperdex data store which supports distirbuted transactions with it's own WARP protocol. 
 
 ## Contributing
 
