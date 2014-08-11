@@ -7,6 +7,7 @@
     <span class="nv">COMPLETIONS = </span>
         <span class="nv">friends: </span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]</span>
         <span class="nv">friendship: </span><span class="p">[</span><span class="s">&#39;create&#39;</span><span class="p">,</span> <span class="s">&#39;remove&#39;</span><span class="p">]</span>
+        <span class="nv">server: </span><span class="p">[</span><span class="s">&#39;info&#39;</span><span class="p">,</span> <span class="s">&#39;counters&#39;</span><span class="p">,</span> <span class="s">&#39;options&#39;</span><span class="p">]</span>
         <span class="nv">quit: </span><span class="p">[]</span>
         <span class="nv">ping: </span><span class="p">[]</span>
     </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>The <code>complete</code> method is give the current line entered by the user, and returns an array with 
@@ -39,7 +40,14 @@ additional helper methods that will be useful in executing command in a later ti
     <span class="nv">constructor: </span><span class="nf">(context) -&gt;</span>
         <span class="vi">@context = </span><span class="nx">context</span>
 
-    <span class="nv">prompt: </span><span class="nf">-&gt;</span> <span class="nx">@context</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>All classes derived from <code>Command</code> should implement it's own behaviour by implementing <code>#execute</code>
+    <span class="nv">prompt: </span><span class="nf">-&gt;</span> <span class="nx">@context</span><span class="p">.</span><span class="nx">prompt</span><span class="p">()</span>
+
+    <span class="nv">print: </span><span class="nf">(error, result) =&gt;</span>
+        <span class="k">if</span> <span class="nx">error</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">error</span><span class="p">.</span><span class="nx">message</span> 
+        <span class="k">else</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">result</span>
+        <span class="nx">@prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>All classes derived from <code>Command</code> should implement it's own behaviour by implementing <code>#execute</code>
 method. Default behaviour is to display an array of trimmed client commands. </p></div></div><div class="code"><div class="wrapper">    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">commands</span> </div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>QuitCommand</code> is issued if user writes <code>quit</code> command in terminal.
 The command disconnects thrift's client from remote server and close <code>readline</code> interface.</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">QuitCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
@@ -51,12 +59,16 @@ The command is issued if user writes <code>ping</code> command in terminal. If t
 thrift's server it will respond with <code>pong</code> string, displayd in a console.</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">PingCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
 
     <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
-        <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">ping</span> <span class="nf">(err, result) =&gt;</span>
-            <span class="k">if</span> <span class="nx">err</span>
-                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span> 
-            <span class="k">else</span>
-                <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">result</span>
-            <span class="nx">@prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>ListFriends</code> command is issued if user writes <code>friends list {id}</code> where an id is user's unique identifier.
+        <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">ping</span> <span class="nx">@print</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>ServerInfo</code> command is issued if user writes <code>server info</code> and asks remote server for thrift server description.</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">ServerInfoCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
+
+    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
+        <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">getName</span> <span class="nx">@print</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>ServerCounters</code> command is issued if user writes <code>server counters</code> and asks remote server for performance counters.</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">ServerCountersCommand</span> <span class="k">extends</span> <span class="nx">Command</span>
+
+    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
+        <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">getCounters</span> <span class="nx">@print</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>ServerOptions</code> command is issued if user writes <code>server options</code> and asks remote server for server options/configuration.</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">ServerOptionsCommand</span> <span class="k">extends</span> <span class="nx">Command</span>
+
+    <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
+        <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">getOptions</span> <span class="nx">@print</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>ListFriends</code> command is issued if user writes <code>friends list {id}</code> where an id is user's unique identifier.
 If a user has friends than the list of user's friends IDs is displayed, or empty array otherwise.    </p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">ListFriendsCommand</span> <span class="k">extends</span> <span class="nx">Command</span>
 
     <span class="nv">execute: </span><span class="nf">(commands) -&gt;</span>
@@ -67,12 +79,7 @@ If a user has friends than the list of user's friends IDs is displayed, or empty
                 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: argument must be a positive number&quot;</span>
                 <span class="k">return</span> <span class="nx">@prompt</span><span class="p">()</span>
 
-            <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">get_friends</span> <span class="nx">id</span><span class="p">,</span> <span class="nf">(err, friends) =&gt;</span>
-                <span class="k">if</span> <span class="nx">err</span>
-                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;error occurred: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">message</span>
-                <span class="k">else</span>
-                    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">friends</span>
-                <span class="nx">@prompt</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>CreateFriends</code> command is issued if user writes <code>friendship create {usera} {userb}</code> where usera and userb are
+            <span class="nx">Thrift</span><span class="p">.</span><span class="nx">Client</span><span class="p">.</span><span class="nx">client</span><span class="p">.</span><span class="nx">get_friends</span> <span class="nx">id</span><span class="p">,</span> <span class="nx">@print</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><code>CreateFriends</code> command is issued if user writes <code>friendship create {usera} {userb}</code> where usera and userb are
 both users ids. The command call displays a message indicating whether or not the operation performed created a new
 friendship relationship or relationship already existed and did nothing. </p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">CreateFriendshipCommand</span> <span class="k">extends</span> <span class="nx">Command</span> 
 
@@ -162,18 +169,24 @@ the prompt in form</p>
             <span class="nv">commands = </span><span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">().</span><span class="nx">split</span> <span class="sr">/\s+/i</span>
 
             <span class="k">switch</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">when</span> <span class="s">&quot;friends&quot;</span>
+                <span class="k">when</span> <span class="s">&#39;friends&#39;</span>
                     <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">and</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;list&#39;</span> 
                         <span class="k">new</span> <span class="nx">ListFriendsCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
 
-                <span class="k">when</span> <span class="s">&quot;friendship&quot;</span>
+                <span class="k">when</span> <span class="s">&#39;friendship&#39;</span>
                     <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span>
                         <span class="k">switch</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                             <span class="k">when</span> <span class="s">&#39;create&#39;</span> <span class="k">then</span> <span class="k">new</span> <span class="nx">CreateFriendshipCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span> 
                             <span class="k">when</span> <span class="s">&#39;remove&#39;</span> <span class="k">then</span> <span class="k">new</span> <span class="nx">RemoveFriendshipCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
-                <span class="k">when</span> <span class="s">&quot;ping&quot;</span>
+                <span class="k">when</span> <span class="s">&#39;server&#39;</span>
+                    <span class="k">if</span> <span class="nx">commands</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span>
+                        <span class="k">switch</span> <span class="nx">commands</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="k">when</span> <span class="s">&#39;info&#39;</span>     <span class="k">then</span> <span class="k">new</span> <span class="nx">ServerInfoCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
+                            <span class="k">when</span> <span class="s">&#39;counters&#39;</span> <span class="k">then</span> <span class="k">new</span> <span class="nx">ServerCountersCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
+                            <span class="k">when</span> <span class="s">&#39;options&#39;</span>  <span class="k">then</span> <span class="k">new</span> <span class="nx">ServerOptionsCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
+                <span class="k">when</span> <span class="s">&#39;ping&#39;</span>
                     <span class="k">new</span> <span class="nx">PingCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
-                <span class="k">when</span> <span class="s">&quot;quit&quot;</span>
+                <span class="k">when</span> <span class="s">&#39;quit&#39;</span><span class="p">,</span> <span class="s">&#39;exit&#39;</span>
                     <span class="k">new</span> <span class="nx">QuitCommand</span><span class="p">(</span><span class="nx">@cmd_interface</span><span class="p">).</span><span class="nx">execute</span> <span class="nx">commands</span>
                 <span class="k">else</span>
                     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;command unknown&#39;</span> <span class="k">if</span> <span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">().</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span> 

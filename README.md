@@ -229,13 +229,17 @@ It is not exposed as a package but instead used internally by the `social-cli` c
 
 ## Testing
 
-## Load Testing
+### Unit Testing
+
+To run unit tests execute:
+
+    $ npm test
+
+### Load Testing
 
 For more information about how to load test the thrift service using Locust see [load testing](https://github.com/iaintshine/social_coffee/tree/master/locust)
 
 ## Development
-
-    npm test
 
 ### Requirements
 

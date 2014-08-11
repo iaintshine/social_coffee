@@ -1,16 +1,269 @@
-<!DOCTYPE html><html lang="en"><head><title>index</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="index"><meta name="groc-project-path" content="README.md"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">README.md</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><p>Social graph Thrift's service</p>
+<!DOCTYPE html><html lang="en"><head><title>index</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="index"><meta name="groc-project-path" content="README.md"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">README.md</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h1 id="social-coffee">Social Coffee</h1>
 
-<h1 id="installation">Installation</h1>
+<p><em>Social Coffee</em> is a Thrift service used for querying friendships and user's relationships.
+It is written in Node.js using Coffeescript and stores data in Redis key-value NoSQL store. 
+Comes with client libraries written for Python, Ruby and Node. In addition to multiple client libraries 
+it comes with <code>social-cli</code> - interactive command utility. </p>
 
-<pre><code>npm install
+<h2 id="goals">Goals</h2>
+
+<p>It supports very simple operations and tries to solve very few problems, but it's designed for on-line, low-latency 
+and high-throughput.</p>
+
+<ul>
+<li>a high rate of query/add/remove operations</li>
+<li>potentially complex <em>set</em> arithmentic operations</li>
+<li>horizontal scaling</li>
+<li>sharding</li>
+<li>consistent</li>
+</ul>
+
+<h2 id="non-goals">Non - goals</h2>
+
+<ul>
+<li>multi-hop or graph-walking queries</li>
+</ul>
+
+<h2 id="operations">Operations</h2>
+
+<p>The service supports fairly simple operations and it's used to store a symmetrical social graph, where if a user A is a friend with a user B, then symmetrically a user B is a friend with a user A. For each friendship relationship operation there are two rows written into the backing store. </p>
+
+<pre><code>users:1:friends -&gt; [ 2 ]
+users:2:friends -&gt; [ 1 ] 
 </code></pre>
 
-<h1 id="run-tests">Run tests</h1>
+<ol>
+<li><p>Query friends list.</p>
+
+<p>Synopsis:
+<code>
+list&lt;ID&gt; get_friends(1: ID id) throws (1: SocialException ex)
+</code></p>
+
+<p>Returns a list of user's friends with provided ID. </p>
+
+<p>Params: </p>
+
+<ul><li><code>id</code> - The ID of the user for whom the list of the friends should be retrieved.</li></ul>
+
+<p>Return:</p>
+
+<ul><li>The list of user's friends IDs. If user has no friends empty list is returned.</li></ul>
+
+<p>Throws:
+<code>SocialException</code> if</p>
+
+<ul><li>ID is null</li>
+<li>ID is not a number</li>
+<li>ID is a non positive number</li>
+<li>internall error occurs, e.g. connection to a database could not be established</li></ul>
+
+<p>Example:
+<code>ruby
+client.get_friends 1
+</code></p></li>
+<li><p>Create friendship between two users</p>
+
+<p>Synopsis:
+<code>
+bool create_friendship(1: ID usera, 2: ID userb) throws (1: SocialException ex)
+</code></p>
+
+<p>Asks the service to make a new multual friendship relationship between users with IDs usera and userb.
+It's an idempotent operation so it can be called multiple times.</p>
+
+<p>Params: </p>
+
+<ul><li><code>usera</code> - The ID of the user A.</li>
+<li><code>userb</code> - The ID of the user B.</li></ul>
+
+<p>Return:</p>
+
+<ul><li>Boolean value indicating whether the operation created a new relationship or relationship already existed. "true" if operation created a new friendship relationship, "false" otherwise.</li></ul>
+
+<p>Throws:
+<code>SocialException</code> if</p>
+
+<ul><li>any of IDs is null</li>
+<li>any of IDs is not a number</li>
+<li>any of IDs is a non positive number</li>
+<li>both of IDs are equal</li>
+<li>internall error occurs, e.g. connection to a database could not be established</li></ul>
+
+<p>Example:
+<code>ruby
+client.create_friendship 1, 2
+</code></p></li>
+<li><p>Remove friendship between two users</p>
+
+<p>Synopsis:
+<code>
+bool remove_friendship(1: ID usera, 2: ID userb) throws (1: SocialException ex)
+</code></p>
+
+<p>Asks the service to remove a new friendship relationship between users with IDs usera and userb.
+It's an idempotent operation so it can be called multiple times.</p>
+
+<p>Params: </p>
+
+<ul><li><code>usera</code> - The ID of the user A.</li>
+<li><code>userb</code> - The ID of the user B.</li></ul>
+
+<p>Return:</p>
+
+<ul><li>Boolean value indicating whether the operation removed an already existed relationship or operation did nothing. "true" if operation removed an already existed friendship relationship, "false" otherwise.</li></ul>
+
+<p>Throws:
+<code>SocialException</code> if</p>
+
+<ul><li>any of IDs is null</li>
+<li>any of IDs is not a number</li>
+<li>any of IDs is a non positive number</li>
+<li>both of IDs are equal</li>
+<li>internall error occurs, e.g. connection to a database could not be established</li></ul>
+
+<p>Example:
+<code>ruby
+client.remove_friendship 1, 2
+</code></p></li>
+</ol>
+
+<h2 id="installation">Installation</h2>
+
+<h3 id="runtime-requirements">Runtime Requirements</h3>
+
+<p>To operate properly Social Coffee service requires</p>
+
+<ul>
+<li><code>Node.js</code> platform</li>
+<li>and access to <code>Redis</code> key-value data store</li>
+</ul>
+
+<h3 id="service-requirements">Service Requirements</h3>
+
+<p>Installation of server's required packages is as simple as calling</p>
+
+<pre><code>$ npm install
+</code></pre>
+
+<h2 id="running">Running</h2>
+
+<h3 id="configuration">Configuration</h3>
+
+<p>All required configuration files are found under <code>config/</code> directory and use YAML format. For now there is only a single configuration file required called <code>db.yaml</code>. </p>
+
+<p><code>db.yaml</code> contains a database configuration (here Redis) for every runtime environment (e.g. development, test, production, staging). If redis is installed on a <code>localhost</code> with default configuration creating database configuration file is as simple as calling:</p>
+
+<pre><code>$ cp config/db.yaml.example config/db.yaml
+</code></pre>
+
+<p>Parameters:
+* <code>host</code>, string, required, URL of the host machine where Redis is installed
+* <code>port</code>, number, required, the port number of a Redis instance
+* <code>password</code>, string, optional, if a Redis instance is password-protected, password required for authentication</p>
+
+<h3 id="starting-the-server">Starting the Server</h3>
+
+<p>By default the server ships with four enviornments: "development", "test", "staging" and "production".
+If no environment is specified the server starts in development environemnt. So calling:</p>
+
+<pre><code>$ node lib/index.js
+</code></pre>
+
+<p>starts the server bound to host <code>0.0.0.0</code>, port <code>9090</code> and in <code>development</code> environment.
+To change an environemnt use <code>NODE_ENV</code> environment variable. E.g. to start the server in <code>production</code> enviornment on port <code>3000</code> execute:</p>
+
+<pre><code>$ NODE_ENV=production node lib/index.js -p 3000
+</code></pre>
+
+<p>Options:</p>
+
+<ul>
+<li><code>-p</code>, <code>--port</code>, <code>number</code>, default: <code>9090</code>, the port number</li>
+</ul>
+
+<h2 id="cli">CLI</h2>
+
+<p><em>Social Coffee</em> service is delivered with a command line tool similar <code>redis-cli</code> that works in REPL manner.
+<code>social-cli</code> supports tab autocompletion and comes with just two options. The first one specifies a port number 
+and the second one specifies a host to which thrift client should connect.</p>
+
+<h3 id="options">Options</h3>
+
+<ul>
+<li><code>-p</code>, <code>--port</code>, <code>number</code>, default: <code>9090</code>, port number</li>
+<li><code>-h</code>, <code>--hort</code>, <code>string</code>, default: <code>localhost</code>, host address</li>
+</ul>
+
+<h3 id="command-list">Command list</h3>
+
+<ul>
+<li><code>ping</code> - utility command used for asking if we still have a connection to a remote server. If the client is connected to 
+thrift's server it will respond with <code>"pong"</code> string, displayd in a console.</li>
+<li><code>server info</code> - the command asks a remote server for thrift server description.</li>
+<li><code>server counters</code> - the command asks a remote server for performance counters.</li>
+<li><code>server options</code> - the command asks a remote server for server options/configuration.</li>
+<li><code>friends list id</code> - the command queries a remote server for user's friends list. If a user has friends than the list of user's friends IDs is displayed, empty array otherwise. </li>
+<li><code>friendship create id_a id_b</code> - the command asks a remote server to make a new mutual friendship relationship between users with IDs <code>id_a</code> and <code>id_b</code>. The command call displays a message indicating whether or not the operation performed created a new
+friendship relationship or relationship already existed and did nothing. </li>
+<li><code>friendship remove id_a id_b</code> - the command asks a remote server to remove a friendship relationship between users with IDs <code>id_a</code> and <code>id_b</code>. The command call displays a message indicating whether or not the operation performed removed existed friendship relationship or did nothing.</li>
+<li><code>quit</code>, <code>exit</code> - the command disconnects thrift's client from remote server and shuts down cli.</li>
+</ul>
+
+<h3 id="sample-session">Sample session</h3>
+
+<p>Below code shows a sample session from interaction with <code>social-cli</code> command line tool.</p>
+
+<pre><code>localhost:9000&gt;info: client connected to remote server
+localhost:9000&gt;ping
+pong
+localhost:9000&gt;friends list 1
+[]
+localhost:9000&gt;friendship create 1 2
+friendship newely created: true
+localhost:9000&gt;friends list 1
+[ 2 ]
+localhost:9000&gt;friendship remove 1 2
+friendship just removed: true
+localhost:9000&gt;friends list 1
+[]
+localhost:9000&gt;quit
+bye bye...
+</code></pre>
+
+<h2 id="clients">Clients</h2>
+
+<p>The sever except for <code>social-cli</code> command line tool comes with multiple client libraries written for Python, Ruby and Node.js (using Coffeescript).</p>
+
+<h3 id="ruby">Ruby</h3>
+
+<p>See <a href="https://github.com/iaintshine/social_coffee/tree/master/client/ruby">the offical Social Coffee Ruby client documentation</a></p>
+
+<h3 id="python">Python</h3>
+
+<p>See <a href="https://github.com/iaintshine/social_coffee/tree/master/client/python">the offical Social Coffee Python client documentation</a></p>
+
+<h3 id="nodejs">Node.js</h3>
+
+<p>It is not exposed as a package but instead used internally by the <code>social-cli</code> command line tool. </p>
+
+<ul>
+<li><a href="https://github.com/iaintshine/social_coffee/blob/master/src/thrift/client.coffee">Client definition</a></li>
+<li><a href="https://github.com/iaintshine/social_coffee/blob/master/src/cli.coffee">Client usage</a></li>
+</ul>
+
+<h2 id="testing">Testing</h2>
+
+<h2 id="load-testing">Load Testing</h2>
+
+<p>For more information about how to load test the thrift service using Locust see <a href="https://github.com/iaintshine/social_coffee/tree/master/locust">load testing</a></p>
+
+<h2 id="development">Development</h2>
 
 <pre><code>npm test
 </code></pre>
 
-<h2 id="requirements">Requirements</h2>
+<h3 id="requirements">Requirements</h3>
 
 <ul>
 <li><p>Globally installed Coffeescript compiler</p>
@@ -19,13 +272,20 @@
 <li><p>Globally installed Cake</p>
 
 <p>[sudo] npm install -g cake</p></li>
-<li><p>Query friends</p>
+</ul>
 
-<p>SELECT * FROM friendlist WHERE owner = uid</p></li>
-<li><p>Create friendship</p>
+<h3 id="cake-tasks">Cake Tasks</h3>
 
-<p>INSERT INTO friendship(UID1, UID2) VALUES (1, 2)</p></li>
-<li><p>Remove friendship</p>
+<h2 id="provisioning">Provisioning</h2>
 
-<p>DELETE FROM friendship WHERE UID1 == 1 AND UID2 == 2</p></li>
-</ul></div></div></div></div></body></html>
+<p>For more information about how to provision the service using Ansible see <a href="https://github.com/iaintshine/social_coffee/tree/master/provision">provision</a></p>
+
+<h2 id="contributing">Contributing</h2>
+
+<ol>
+<li>Fork it</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create new Pull Request</li>
+</ol></div></div></div></div></body></html>
