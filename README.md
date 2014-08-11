@@ -30,6 +30,11 @@ users:2:friends -> [ 1 ]
 ```
 
 1. Query friends list.
+    
+    Synopsis:
+    ```
+    list<ID> get_friends(1: ID id) throws (1: SocialException ex)
+    ```
 
     Returns a list of user's friends with provided ID. 
 
@@ -46,14 +51,70 @@ users:2:friends -> [ 1 ]
     * ID is a non positive number
     * internall error occurs, e.g. connection to a database could not be established
 
+    Example:
     ```ruby
     client.get_friends 1
     ```
 
-
 2. Create friendship between two users
+    
+    Synopsis:
+    ```
+    bool create_friendship(1: ID usera, 2: ID userb) throws (1: SocialException ex)
+    ```
+
+    Asks the service to make a new multual friendship relationship between users with IDs usera and userb.
+    It's an idempotent operation so it can be called multiple times.
+
+    Params: 
+    * `usera` - The ID of the user A.
+    * `userb` - The ID of the user B.
+
+    Return:
+    * Boolean value indicating whether the operation created a new relationship or relationship already existed. "true" if operation created a new friendship relationship, "false" otherwise.
+
+    Throws:
+    `SocialException` if
+    * any of IDs is null
+    * any of IDs is not a number
+    * any of IDs is a non positive number
+    * both of IDs are equal
+    * internall error occurs, e.g. connection to a database could not be established
+
+    Example:
+    ```ruby
+    client.create_friendship 1, 2
+    ```
 
 3. Remove friendship between two users
+    
+    Synopsis:
+    ```
+    bool remove_friendship(1: ID usera, 2: ID userb) throws (1: SocialException ex)
+    ```
+
+    Asks the service to remove a new friendship relationship between users with IDs usera and userb.
+    It's an idempotent operation so it can be called multiple times.
+
+    Params: 
+    * `usera` - The ID of the user A.
+    * `userb` - The ID of the user B.
+
+    Return:
+    * Boolean value indicating whether the operation removed an already existed relationship or operation did nothing. "true" if operation removed an already existed friendship relationship, "false" otherwise.
+
+    Throws:
+    `SocialException` if
+    * any of IDs is null
+    * any of IDs is not a number
+    * any of IDs is a non positive number
+    * both of IDs are equal
+    * internall error occurs, e.g. connection to a database could not be established
+
+    Example:
+    ```ruby
+    client.remove_friendship 1, 2
+    ```
 
 ## Installation
 
