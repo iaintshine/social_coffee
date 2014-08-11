@@ -274,6 +274,9 @@ E.g. to regenerate thrift bindings simply call:
 
 For more information about how to provision the service using Ansible see [provision](https://github.com/iaintshine/social_coffee/tree/master/provision)
 
+## Documentation
+
+The documentation generated from the source code can be found under `doc/` directory, whereas the documentation generated from the thrift interfaces is located under `doc/thrift/` directory. 
 
 ## What's missing
 
