@@ -22,10 +22,46 @@ and high-throughput.
 
 ## Operations
 
+The service supports fairly simple operations and it's used to store a symmetrical social graph, where if a user A is a friend with a user B, then symmetrically a user B is a friend with a user A. For each friendship relationship operation there are two rows written into the backing store. 
+
+```
+users:1:friends -> [ 2 ]
+users:2:friends -> [ 1 ] 
+```
+
+1. Query friends list.
+
+    Returns a list of user's friends with provided ID. 
+
+    Params: 
+    * `id` - The ID of the user for whom the list of the friends should be retrieved.
+
+    Return:
+    * The list of user's friends IDs. If user has no friends empty list is returned.
+
+    Throws:
+    `SocialException` if
+    * ID is null
+    * ID is not a number
+    * ID is a non positive number
+    * internall error occurs, e.g. connection to a database could not be established
+
+    ```ruby
+    client.get_friends 1
+    ```
+
+
+2. Create friendship between two users
+
+3. Remove friendship between two users
 
 ## Installation
 
     npm install
+
+## Requirements
+
+## Configuration
 
 ## Running
   
