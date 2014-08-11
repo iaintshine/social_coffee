@@ -207,9 +207,25 @@ localhost:9000>friends list 1
 localhost:9000>quit
 bye bye...
 ```  
+
 ## Clients
 
-# TODO
+The sever except for `social-cli` command line tool comes with multiple client libraries written for Python, Ruby and Node.js (using Coffeescript).
+
+### Ruby
+
+See [the offical Social Coffee Ruby client documentation](https://github.com/iaintshine/social_coffee/tree/master/client/ruby)
+
+### Python
+
+See [the offical Social Coffee Python client documentation](https://github.com/iaintshine/social_coffee/tree/master/client/python)
+
+### Node.js
+
+It is not exposed as a package but instead used internally by the `social-cli` command line tool. 
+
+* [Client definition](https://github.com/iaintshine/social_coffee/blob/master/src/thrift/client.coffee)
+* [Client usage](https://github.com/iaintshine/social_coffee/blob/master/src/cli.coffee)
 
 ## Testing
 
